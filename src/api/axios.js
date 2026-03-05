@@ -23,6 +23,10 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        if (originalRequest.url.includes("/login/")) {
+            return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
@@ -38,5 +42,18 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export const logoutUser = async () => {
+    try{
+        await api.post("/logout/");
+    }
+    catch (error) {
+        console.error("Помилка при виході", error.response?.data);
+    }
+    finally {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login/";
+    }
+};
 
 export default api;
