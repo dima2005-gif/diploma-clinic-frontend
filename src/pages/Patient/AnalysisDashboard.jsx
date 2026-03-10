@@ -30,6 +30,7 @@ const AnalysisList = () => {
             <th>Дата</th>
             <th>Призначив</th>
             <th>Статус</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -43,6 +44,12 @@ const AnalysisList = () => {
                 {analys.doctor.first_name} {analys.doctor.last_name}
               </td>
               <td>{analys.status}</td>
+              <td> <button
+                onClick={() => navigate(`/patient/analysis/${analys.id}`)}
+              >
+                Детально
+              </button></td>
+
             </tr>
           ))}
         </tbody>

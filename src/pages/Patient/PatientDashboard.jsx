@@ -59,6 +59,10 @@ const PatientDashboard = () => {
       <button onClick={() => navigate("/patient/analysis")}>
         Переглянути аналізи
       </button>
+      <button onClick={() => navigate("/patient/medical-history")}>
+        Переглянути історію хвороб
+      </button>
+      <button onClick={() => navigate("/patient/visit")}>Візити</button>
     </div>
   );
 };

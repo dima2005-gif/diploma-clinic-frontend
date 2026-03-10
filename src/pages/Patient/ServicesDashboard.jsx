@@ -3,7 +3,7 @@ import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const DirectoryOfServices = () => {
-  const naviate = useNavigate();
+  const navigate = useNavigate();
   const [services, setServices] = useState(null);
 
   useEffect(() => {
@@ -28,7 +28,9 @@ const DirectoryOfServices = () => {
         <thead>
           <tr>
             <th>Назва послуги</th>
+            <th>Опис</th>
             <th>Вартість (грн)</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -37,11 +39,18 @@ const DirectoryOfServices = () => {
               <td>{service.name}</td>
               <td>{service.description}</td>
               <td>{service.price}</td>
+              <td>
+                <button
+                  onClick={() => navigate(`/patient/services/${service.id}`)}
+                >
+                  Детально
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={() => naviate("/patient")}>
+      <button onClick={() => navigate("/patient")}>
         Назад до головної сторінки
       </button>
     </div>
