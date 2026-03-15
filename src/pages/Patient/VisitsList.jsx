@@ -4,7 +4,7 @@ import api from "../../api/axios";
 
 const VisitsList = () => {
   const navigate = useNavigate();
-  const [visits, setVisits] = useState();
+  const [visits, setVisits] = useState([]);
 
   useEffect(() => {
     const fetchVisit = async () => {
@@ -18,6 +18,21 @@ const VisitsList = () => {
     fetchVisit();
   }, []);
 
+  const fetchCancel = async (id) => {
+    if (!window.confirm("Ви впевнені, що хочете скасувати запис?")) return;
+    try {
+      await api.patch(`/patient/visit/${id}/cancel/`);
+      setVisits(
+        visits.map((v) => (v.id === id ? { ...v, status: "Відмовлено" } : v)),
+      );
+    } catch (error) {
+      console.error("Помилка при скасуванні", error);
+    }
+  };
+
+  const activeVisits = visits.filter((v) => v.status !== "Відмовлено");
+  const archivedVisits = visits.filter((v) => v.status === "Відмовлено");
+
   if (!visits) {
     return <div>Завантажуються список візитів зачекайте...</div>;
   }
@@ -25,6 +40,9 @@ const VisitsList = () => {
   return (
     <div className="visit-page">
       <h2>Візити</h2>
+      <button onClick={() => navigate("/patient/visit/create")}>
+        Створити запис
+      </button>
       <table>
         <thead>
           <tr>
@@ -36,24 +54,66 @@ const VisitsList = () => {
           </tr>
         </thead>
         <tbody>
-          {visits.map((visit) => (
+          {activeVisits.map((visit) => (
             <tr key={visit.id}>
               <td>{visit.service.name}</td>
               <td>
                 {visit.doctor.first_name} {visit.doctor.last_name}{" "}
                 {visit.doctor.middle_name}
               </td>
-              <td>
-                {new Date(visit.date_prescribed).toLocaleString("uk" - "UA")}
-              </td>
+              <td>{new Date(visit.date_prescribed).toLocaleString("uk-UA")}</td>
               <td>{visit.status}</td>
               <td>
-                <button onClick={() => navigate("#")}>Редагувати</button>
+                {visit.status === "Заплановано" && (
+                  <>
+                    <button
+                      onClick={() =>
+                        navigate(`/patient/visit/${visit.id}/update`)
+                      }
+                    >
+                      Редагувати
+                    </button>
+                    <button onClick={() => fetchCancel(visit.id)}>
+                      Скасувати
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
-          ))}
+          ))}{" "}
         </tbody>
       </table>
+
+      {archivedVisits.length > 0 && (
+        <div className="visit-page">
+          <h3>Архів</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Назва</th>
+                <th>Лікар</th>
+                <th>Дата запису</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {archivedVisits.map((visit) => (
+                <tr key={visit.id}>
+                  <td>{visit.service.name}</td>
+                  <td>
+                    {visit.doctor.first_name} {visit.doctor.last_name}{" "}
+                    {visit.doctor.middle_name}
+                  </td>
+                  <td>
+                    {new Date(visit.date_prescribed).toLocaleString("uk-UA")}
+                  </td>
+                  <td>{visit.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <button onClick={() => navigate("/patient/")}>
         Повернутися до головної сторінки

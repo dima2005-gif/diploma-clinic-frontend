@@ -5,35 +5,45 @@ import api from "../../api/axios";
 const ServiceDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [data, setData] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [serviceInfo, setServiceInfo] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const response = await api.get(`/patient/services/${id}`);
-        setData(response.data);
+        const services = response.data || [];
+
+        if (services.length > 0) {
+          setServiceInfo(services[0].service);
+
+          const allDoctors = services.flatMap((item) => item.doctor);
+          setDoctors(allDoctors);
+        }
       } catch (error) {
         console.error("Помилка при завантажені даних", error);
       }
     };
+
     fetchDetail();
   }, [id]);
 
-  if (!data) return <div>Завантаження детальної інформації...</div>;
+  if (!serviceInfo) return <div>Завантаження детальної інформації...</div>;
 
   return (
     <div className="analysis-page-detail">
-      <h2>Деталі послуги: {data.service.name}</h2>
       <div className="analysis-card">
+        <h2>Деталі послуги: {serviceInfo.name}</h2>
         <p>
-          <strong>Опис:</strong> {data.service.description || "Опис відсутній"}
+          <strong>Опис:</strong> {serviceInfo.description || "Опис відсутній"}
         </p>
         <p>
-          <strong>Ціна:</strong> {data.service.price} грн
+          <strong>Ціна:</strong> {serviceInfo.price} грн
         </p>
+
         <h3>Лікарі, які надають цю послугу</h3>
-        {data.employees.map((doctor, index) => (
-          <div key={index}>
+        {doctors.map((doctor) => (
+          <div key={doctor.id}>
             <p>
               <strong>Лікар:</strong> {doctor.last_name} {doctor.first_name}{" "}
               {doctor.middle_name}

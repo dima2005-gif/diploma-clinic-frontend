@@ -29,15 +29,11 @@ const MedicalHistoryDetail = () => {
         <h2>
           Історія хвороби за{" "}
           {new Date(history_detail.date_arrival).toLocaleDateString("uk-UA")} по{" "}
-          {history_detail.date_departure ? (
-            <p>
-              {new Date(history_detail.date_arrival).toLocaleDateString(
-                "uk-UA",
-              )}
-            </p>
-          ) : (
-            <p> </p>
-          )}
+          {history_detail.date_departure
+            ? new Date(history_detail.date_departure).toLocaleDateString(
+              "uk-UA",
+            )
+            : "—"}{" "}
         </h2>
         <p>
           <strong>Послуга:</strong>

@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
     baseURL: "http://localhost:8000/api",
     withCredentials: true,
-    });
+});
 
 api.interceptors.request.use(
     (config) => {
@@ -15,7 +15,7 @@ api.interceptors.request.use(
     },
     (error) => {
         return Promise.reject(error);
-    }
+    },
 );
 
 api.interceptors.response.use(
@@ -23,7 +23,10 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (originalRequest.url.includes("/login/")) {
+        if (
+            originalRequest.url.includes("/login/") ||
+            originalRequest.url.includes("/token/refresh/")
+        ) {
             return Promise.reject(error);
         }
 
@@ -40,17 +43,15 @@ api.interceptors.response.use(
             }
         }
         return Promise.reject(error);
-    }
+    },
 );
 
 export const logoutUser = async () => {
-    try{
+    try {
         await api.post("/logout/");
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Помилка при виході", error.response?.data);
-    }
-    finally {
+    } finally {
         localStorage.removeItem("access_token");
         window.location.href = "/login/";
     }
