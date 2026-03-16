@@ -87,7 +87,8 @@ const CreateVisit = () => {
       setMessage("Помилка при створенні візиту");
     }
   };
-
+const today = new Date();
+const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   return (
     <div>
       <h2>Створення візиту</h2>
@@ -136,7 +137,7 @@ const CreateVisit = () => {
           <input
             type="date"
             value={selectedDate}
-            min={new Date().toISOString().split("T")[0]}
+            min={minDate}
             onChange={(e) => fetchDateChange(e.target.value)}
           />
         </div>

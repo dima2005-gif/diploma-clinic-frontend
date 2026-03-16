@@ -80,7 +80,7 @@ const VisitsList = () => {
                 )}
               </td>
             </tr>
-          ))}{" "}
+          ))}
         </tbody>
       </table>
 

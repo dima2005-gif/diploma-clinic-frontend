@@ -1,7 +1,10 @@
 import React from "react";
 import api from "../api/axios";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState(null);
@@ -10,10 +13,30 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await api.post('/login/', { username, password });
-      localStorage.setItem('access_token', response.data.access);
+      const response = await api.post("/login/", { username, password });
+      const token = response.data.access;
+      localStorage.setItem("access_token", token);
+      const decode = jwtDecode(token);
+      switch (decode.position) {
+        case "patient":
+          navigate("/patient/");
+          break;
+        case "doctor":
+          navigate("/doctor/");
+          break;
+        case "lab":
+          navigate("/lab/");
+          break;
+        case "register":
+          navigate("/register/");
+          break;
+        case "admin":
+          navigate("/administrator/");
+          break;
+        default:
+          navigate("/");
+      }
       console.log("Успішний вхід");
-      window.location.href = "/patient/";
       return true;
     } catch (error) {
       console.error("Логін чи пароль невірні", error.response?.data);

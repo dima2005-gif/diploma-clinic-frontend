@@ -12,6 +12,8 @@ import MedicalHistoryDetail from "./pages/Patient/MedicalHistoryDetail";
 import VisitsList from "./pages/Patient/VisitsList";
 import CreateVisit from "./pages/Patient/VisitCreate";
 import UpdateVisit from "./pages/Patient/VisitUpdate";
+import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
+import DoctorVisitsList from "./pages/Doctor/VisitsList";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -93,7 +95,27 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/patient/visit/:id/update/" element={<UpdateVisit />} />
+        <Route
+          path="/patient/visit/:id/update/"
+          element={
+            <PrivateRoute>
+              <UpdateVisit />
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="/doctor/" element={<PrivateRoute><DoctorDashboard /></PrivateRoute>} />
+
+
+
+        <Route
+          path="/doctor/visit/"
+          element={
+            <PrivateRoute>
+              <DoctorVisitsList />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );
