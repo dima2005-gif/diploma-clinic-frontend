@@ -48,8 +48,8 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Вхід у систему</h2>
+    <div className="min-h-screen flex items-center justify-center">
+      <h2 clas>Вхід у систему</h2>
       <form onSubmit={handleLogin}>
         {error && <p style={{ color: "red" }}>{error}</p>}
         <input
