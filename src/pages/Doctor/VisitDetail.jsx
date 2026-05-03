@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import DiagnosisTab from "../../components/doctor/diagnosis/DiagnosisTab";
+import MedicinesTab from "../../components/doctor/medicines/MedicinesTab";
+import AnalysisTab from "../../components/doctor/analysis/AnalysisTab";
 import api from "../../api/axios";
 
 const DoctorVisitDetail = () => {
@@ -8,18 +11,31 @@ const DoctorVisitDetail = () => {
   const [visit, setVisit] = useState();
   const [activeTab, setActiveTab] = useState("patient");
 
+  const fetchVisit = async () => {
+    try {
+      const response = await api.get(`/doctor/visit/${id}/`);
+      setVisit(response.data);
+    } catch (error) {
+      console.error("Помилка при завантажені", error);
+    }
+  };
   useEffect(() => {
-    const fetchVisit = async () => {
-      try {
-        const response = await api.get(`/doctor/visit/${id}/`);
-        setVisit(response.data);
-      } catch (error) {
-        console.error("Помилка при завантажені", error);
-      }
-    };
     fetchVisit();
   }, [id]);
+  const handleCloseHistory = async () => {
+    const confirmed = window.confirm(
+      "Ви впевнені, що хочете закрити історію хвороби?",
+    );
 
+    if (!confirmed) return;
+
+    try {
+      await api.patch(`/doctor/visit/${visit.id}/close-history/`);
+      await fetchVisit();
+    } catch (error) {
+      console.error("Помилка при закритті історії хвороби", error);
+    }
+  };
   if (!visit) return <div>Завантаження...</div>;
 
   return (
@@ -53,6 +69,13 @@ const DoctorVisitDetail = () => {
         >
           Переглянути історію хвороби
         </button>
+        {visit.history && !visit.history.date_departure && (
+          <button onClick={handleCloseHistory}>Закрити історію хвороби</button>
+        )}
+
+        {visit.history?.date_departure && (
+          <p>Історію закрито: {visit.history.date_departure}</p>
+        )}
       </div>
 
       <div>
@@ -62,28 +85,14 @@ const DoctorVisitDetail = () => {
       </div>
 
       {activeTab === "diagnosis" && (
-        <div>
-          <h3>Діагноз</h3>
-          {visit.has_medical_history ? (
-            <p>Висновок є</p>
-          ) : (
-            <p>Висновок ще не створено</p>
-          )}
-        </div>
+        <DiagnosisTab visit={visit} refresh={fetchVisit} />
       )}
-
       {activeTab === "medicines" && (
-        <div>
-          <h3>Ліки</h3>
-          <p>Список ліків буде тут</p>
-        </div>
+        <MedicinesTab visit={visit} refresh={fetchVisit} />
       )}
 
       {activeTab === "analysis" && (
-        <div>
-          <h3>Аналізи</h3>
-          <p>Список аналізів буде тут</p>
-        </div>
+        <AnalysisTab visit={visit} refresh={fetchVisit} />
       )}
 
       <button onClick={() => navigate("/doctor/visit/")}>Назад</button>

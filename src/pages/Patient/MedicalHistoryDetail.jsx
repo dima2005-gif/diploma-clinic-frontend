@@ -46,7 +46,7 @@ const MedicalHistoryDetail = () => {
         </p>
         <p>
           <strong>Діагноз:</strong>
-          {history_detail.diagnosis.name}
+          {history_detail.diagnosis?.name}
         </p>
         <p>
           <strong>Висновок:</strong>

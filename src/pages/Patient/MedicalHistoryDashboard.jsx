@@ -48,7 +48,7 @@ const MedicalHistory = () => {
                 )}
               </th>
               <th>{data.service}</th>
-              <th>{data.diagnosis.name}</th>
+              <th>{data.diagnosis?.name || "---"}</th>
               <th>
                 <button
                   onClick={() =>
