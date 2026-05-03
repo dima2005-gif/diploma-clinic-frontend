@@ -21,7 +21,7 @@ const AnalysisForm = ({ visit, selectedAnalysis, onCancel, onSuccess }) => {
     const fetchData = async () => {
       try {
         const analyses = await api.get("/analysis/");
-        const labs = await api.get("/laborant/");
+        const labs = await api.get("/laborant-list/");
 
         setAnalysisList(analyses.data);
         setAssistants(labs.data);
@@ -32,8 +32,6 @@ const AnalysisForm = ({ visit, selectedAnalysis, onCancel, onSuccess }) => {
 
     fetchData();
   }, []);
-
-
 
   const now = new Date();
 

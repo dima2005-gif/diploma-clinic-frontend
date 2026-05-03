@@ -16,6 +16,9 @@ import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorVisitsList from "./pages/Doctor/VisitsList";
 import DoctorVisitDetail from "./pages/Doctor/VisitDetail";
 import MedicalHistoryAccordion from "./pages/Doctor/MedicalHistory";
+import LaborantDashboard from "./pages/Laborant/LaborantDashboard";
+import LaborantAnalysisList from "./pages/Laborant/AnalysisList";
+import LaborantAnalysisDetail from "./pages/Laborant/AnalysisDetail";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -137,6 +140,33 @@ function App() {
           element={
             <PrivateRoute>
               <MedicalHistoryAccordion />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/laborant/"
+          element={
+            <PrivateRoute>
+              <LaborantDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/laborant/analyses/"
+          element={
+            <PrivateRoute>
+              <LaborantAnalysisList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/laborant/analyses/:id/"
+          element={
+            <PrivateRoute>
+              <LaborantAnalysisDetail />
             </PrivateRoute>
           }
         />

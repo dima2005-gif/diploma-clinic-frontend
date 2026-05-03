@@ -25,7 +25,7 @@ const Login = () => {
           navigate("/doctor/");
           break;
         case "lab":
-          navigate("/lab/");
+          navigate("/laborant/");
           break;
         case "register":
           navigate("/register/");
