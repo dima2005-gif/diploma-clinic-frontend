@@ -19,6 +19,10 @@ import MedicalHistoryAccordion from "./pages/Doctor/MedicalHistory";
 import LaborantDashboard from "./pages/Laborant/LaborantDashboard";
 import LaborantAnalysisList from "./pages/Laborant/AnalysisList";
 import LaborantAnalysisDetail from "./pages/Laborant/AnalysisDetail";
+import RegisterPatientsList from "./pages/Register/RegisterPatientList";
+import RegisterPatientDetail from "./pages/Register/RegisterPatientDetail";
+import RegisterPatientCreate from "./pages/Register/RegisterPatientCreate";
+import RegisterPatientEdit from "./pages/Register/RegisterPatientEdit";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -167,6 +171,42 @@ function App() {
           element={
             <PrivateRoute>
               <LaborantAnalysisDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/register/"
+          element={
+            <PrivateRoute>
+              <RegisterPatientsList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/register/:id/"
+          element={
+            <PrivateRoute>
+              <RegisterPatientDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/register/create/"
+          element={
+            <PrivateRoute>
+              <RegisterPatientCreate />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/register/:id/edit/"
+          element={
+            <PrivateRoute>
+              <RegisterPatientEdit />
             </PrivateRoute>
           }
         />
