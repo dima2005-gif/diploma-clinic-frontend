@@ -45,6 +45,7 @@ import AdminDiagnosisStatistics from "./pages/Statistics/DiagnosisStatistics";
 import GuestHome from "./pages/Guest/GuestHome";
 import GuestServicesDetail from "./pages/Guest/GuestServiceDetail";
 import GuestDoctorsDetail from "./pages/Guest/GuestDoctorDetail";
+import PatientResponses from "./pages/Patient/Responses";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -131,6 +132,14 @@ function App() {
           element={
             <PrivateRoute>
               <UpdateVisit />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/patient/responses/"
+          element={
+            <PrivateRoute>
+              <PatientResponses />
             </PrivateRoute>
           }
         />
