@@ -67,6 +67,7 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button type="submit">Увійти</button>
+        <button onClick={() => navigate("/")}>Вийти</button>
       </form>
     </div>
   );

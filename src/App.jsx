@@ -42,6 +42,9 @@ import AdminDoctorVisitsStatistics from "./pages/Statistics/DoctorVisitsStatisti
 import AdminServicePopularityStatistics from "./pages/Statistics/ServicePopularityStatistics";
 import AdminAnalysisPopularityStatistics from "./pages/Statistics/AnalysisPopularityStatistics";
 import AdminDiagnosisStatistics from "./pages/Statistics/DiagnosisStatistics";
+import GuestHome from "./pages/Guest/GuestHome";
+import GuestServicesDetail from "./pages/Guest/GuestServiceDetail";
+import GuestDoctorsDetail from "./pages/Guest/GuestDoctorDetail";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -399,6 +402,10 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        <Route path="/" element={<GuestHome />} />
+        <Route path="/services/:id/" element={<GuestServicesDetail />} />
+        <Route path="/doctors/:id/" element={<GuestDoctorsDetail />} />
       </Routes>
     </Router>
   );
