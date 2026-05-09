@@ -23,6 +23,25 @@ import RegisterPatientsList from "./pages/Register/RegisterPatientList";
 import RegisterPatientDetail from "./pages/Register/RegisterPatientDetail";
 import RegisterPatientCreate from "./pages/Register/RegisterPatientCreate";
 import RegisterPatientEdit from "./pages/Register/RegisterPatientEdit";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminEmployeeList from "./pages/Admin/AdminEmployeeList";
+import AdminEmployeeDetail from "./pages/Admin/AdminEmployeeDetail";
+import AdminEmployeeCreate from "./pages/Admin/AdminEmployeeCreate";
+import AdminEmployeeUpdate from "./pages/Admin/AdminEmployeeUpdate";
+import AdminAnalysisList from "./pages/Admin/AdminAnalysisList";
+import AdminAnalysisDetail from "./pages/Admin/AdminAnalysisDetail";
+import AdminAnalysisCreate from "./pages/Admin/AdminAnalysisCreate";
+import AdminAnalysisEdit from "./pages/Admin/AdminAnalysisEdit";
+import AdminServicesList from "./pages/Admin/AdminServicesList";
+import AdminServicesDetail from "./pages/Admin/AdminServicesDetail";
+import AdminServicesCreate from "./pages/Admin/AdminServicesCreate";
+import AdminServicesEdit from "./pages/Admin/AdminServicesEdit";
+import AdminAudit from "./pages/Admin/AdminAudit";
+import AdminStatistics from "./pages/Statistics/StatisticsDashboard";
+import AdminDoctorVisitsStatistics from "./pages/Statistics/DoctorVisitsStatistics";
+import AdminServicePopularityStatistics from "./pages/Statistics/ServicePopularityStatistics";
+import AdminAnalysisPopularityStatistics from "./pages/Statistics/AnalysisPopularityStatistics";
+import AdminDiagnosisStatistics from "./pages/Statistics/DiagnosisStatistics";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -207,6 +226,176 @@ function App() {
           element={
             <PrivateRoute>
               <RegisterPatientEdit />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/"
+          element={
+            <PrivateRoute>
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/employees/"
+          element={
+            <PrivateRoute>
+              <AdminEmployeeList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/employees/:id/"
+          element={
+            <PrivateRoute>
+              <AdminEmployeeDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/employees/create/"
+          element={
+            <PrivateRoute>
+              <AdminEmployeeCreate />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/employees/:id/update/"
+          element={
+            <PrivateRoute>
+              <AdminEmployeeUpdate />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/analyses/"
+          element={
+            <PrivateRoute>
+              <AdminAnalysisList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/analyses/:id/"
+          element={
+            <PrivateRoute>
+              <AdminAnalysisDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/analyses/create/"
+          element={
+            <PrivateRoute>
+              <AdminAnalysisCreate />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/analyses/:id/edit/"
+          element={
+            <PrivateRoute>
+              <AdminAnalysisEdit />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/services/"
+          element={
+            <PrivateRoute>
+              <AdminServicesList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/services/:id/"
+          element={
+            <PrivateRoute>
+              <AdminServicesDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/services/create/"
+          element={
+            <PrivateRoute>
+              <AdminServicesCreate />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/services/:id/edit/"
+          element={
+            <PrivateRoute>
+              <AdminServicesEdit />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/administrator/audit/"
+          element={
+            <PrivateRoute>
+              <AdminAudit />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="administrator/statistics/"
+          element={
+            <PrivateRoute>
+              <AdminStatistics />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="administrator/statistics/doctor-visits/"
+          element={
+            <PrivateRoute>
+              <AdminDoctorVisitsStatistics />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="administrator/statistics/service-popularity/"
+          element={
+            <PrivateRoute>
+              <AdminServicePopularityStatistics />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="administrator/statistics/analysis-popularity/"
+          element={
+            <PrivateRoute>
+              <AdminAnalysisPopularityStatistics />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="administrator/statistics/diagnoses/"
+          element={
+            <PrivateRoute>
+              <AdminDiagnosisStatistics />
             </PrivateRoute>
           }
         />

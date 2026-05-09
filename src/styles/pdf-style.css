@@ -1,0 +1,16 @@
+.pdf-report {
+  background-color: #fff;
+  padding: 24px;
+}
+.pdf-report * {
+  color: #1e1e1e; !important
+}
+.pdf-report table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pdf-report th, 
+.pdf-report td {
+  border: 1px solid #1e1e1e;
+  padding: 8px;
+}
