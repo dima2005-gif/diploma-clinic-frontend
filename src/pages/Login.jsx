@@ -66,6 +66,9 @@ const Login = () => {
           required
           onChange={(e) => setPassword(e.target.value)}
         />
+        <a href="/password-reset/">
+          <p>Забули пароль?</p>
+        </a>
         <button type="submit">Увійти</button>
         <button onClick={() => navigate("/")}>Вийти</button>
       </form>

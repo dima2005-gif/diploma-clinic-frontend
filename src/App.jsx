@@ -46,6 +46,7 @@ import GuestHome from "./pages/Guest/GuestHome";
 import GuestServicesDetail from "./pages/Guest/GuestServiceDetail";
 import GuestDoctorsDetail from "./pages/Guest/GuestDoctorDetail";
 import PatientResponses from "./pages/Patient/Responses";
+import PasswordReset from "./pages/ResetPassword";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -55,6 +56,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/password-reset" element={<PasswordReset />} />
         <Route
           path="/patient"
           element={
