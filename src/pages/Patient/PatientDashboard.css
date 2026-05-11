@@ -1,0 +1,243 @@
+.patient-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.patient-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.patient-info-card {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 32px;
+}
+
+.patient-label {
+  margin: 0 0 12px;
+  color: var(--color-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.patient-info-card h1 {
+  margin: 0 0 18px;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.patient-main-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-main-info p {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.patient-contact-list div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.patient-contact-list span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-contact-list strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.patient-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.patient-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 44px 52px;
+}
+
+.patient-hero h2 {
+  margin: 0 0 14px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.patient-hero p {
+  margin: 0;
+  max-width: 820px;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.patient-section {
+  width: 100%;
+}
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.section-heading p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.patient-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.patient-stat-card {
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.patient-action-card.blue {
+  border-left: 4px solid var(--color-blue);
+}
+
+.patient-action-card.yellow {
+  border-left: 4px solid var(--color-yellow);
+}
+
+.patient-action-card.green {
+  border-left: 4px solid var(--color-green);
+}
+
+.patient-action-card.red {
+  border-left: 4px solid var(--color-red);
+}
+.patient-action-card.aqua {
+  border-left: 4px solid var(--color-aqua);
+}
+
+.patient-stat-card span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-stat-card strong {
+  color: var(--color-green);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.patient-stat-card p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.patient-action-card {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.patient-action-card h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.patient-action-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.patient-action-card .btn {
+  margin-top: 24px;
+  width: fit-content;
+}
+
+@media (max-width: 1200px) {
+  .patient-layout {
+    grid-template-columns: 320px 1fr;
+  }
+
+  .patient-stats-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .patient-actions-grid {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .patient-page {
+    padding: 24px;
+  }
+
+  .patient-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-info-card {
+    position: static;
+    min-height: auto;
+    gap: 28px;
+  }
+
+  .patient-hero {
+    padding: 32px 28px;
+  }
+
+  .patient-hero h2 {
+    font-size: 32px;
+  }
+
+  .patient-stats-grid,
+  .patient-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}

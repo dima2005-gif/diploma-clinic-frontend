@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import RatingStars from "../../components/UI/RatingStars";
+
+import logo from "../../assets/logo-full.svg";
+
+import "./GuestHome.css";
+
 const GuestHome = () => {
   const navigate = useNavigate();
 
@@ -26,49 +34,102 @@ const GuestHome = () => {
   }, []);
 
   return (
-    <div>
-      <h2>eKarta</h2>
+    <main className="guest-page">
+      <header className="guest-header">
+        <img src={logo} alt="eKarta" className="guest-logo" />
 
-      <button onClick={() => setActiveTab("services")}>Послуги</button>
-      <button onClick={() => setActiveTab("doctors")}>Лікарі</button>
-      <button onClick={() => navigate("/login/")}>Увійти</button>
+        <nav className="guest-tabs">
+          <button
+            className={activeTab === "services" ? "tab active" : "tab"}
+            onClick={() => setActiveTab("services")}
+          >
+            Послуги
+          </button>
+
+          <button
+            className={activeTab === "doctors" ? "tab active" : "tab"}
+            onClick={() => setActiveTab("doctors")}
+          >
+            Лікарі
+          </button>
+        </nav>
+
+        <div className="guest-header-actions">
+          <Button variant="primary" onClick={() => navigate("/login/")}>
+            Увійти
+          </Button>
+        </div>
+      </header>
+
+      <section className="guest-hero">
+        <h1>Медичні послуги та лікарі в одному місці</h1>
+        <p>
+          Переглядайте доступні послуги, інформацію про лікарів, розклад роботи
+          та відгуки пацієнтів.
+        </p>
+      </section>
 
       {activeTab === "services" && (
-        <div>
-          <h3>Наші послуги</h3>
+        <section className="guest-section">
+          <div className="section-heading">
+            <h2>Наші послуги</h2>
+            <p>Оберіть послугу, щоб переглянути деталі та лікарів.</p>
+          </div>
 
-          {services.map((service) => (
-            <div key={service.id}>
-              <h4>{service.name}</h4>
-              <p>{service.description}</p>
-              <p>{service.price} грн</p>
+          <div className="guest-grid">
+            {services.map((service) => (
+              <Card key={service.id} className="guest-card">
+                <div>
+                  <h3>{service.name}</h3>
+                  <p className="card-description">{service.description}</p>
+                </div>
 
-              <button onClick={() => navigate(`/services/${service.id}/`)}>
-                Детальніше
-              </button>
-            </div>
-          ))}
-        </div>
+                <div className="card-footer">
+                  <span className="price">{service.price} грн</span>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/services/${service.id}/`)}
+                  >
+                    Детальніше
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
       )}
 
       {activeTab === "doctors" && (
-        <div>
-          <h3>Наші лікарі</h3>
+        <section className="guest-section">
+          <div className="section-heading">
+            <h2>Наші лікарі</h2>
+            <p>Перегляньте спеціалістів, їхній рейтинг та доступні послуги.</p>
+          </div>
 
-          {doctors.map((doctor) => (
-            <div key={doctor.id}>
-              <h4>{doctor.full_name}</h4>
-              <p>{doctor.position}</p>
-              <p>Рейтинг: {doctor.average_rating || "Немає оцінок"}</p>
+          <div className="guest-grid">
+            {doctors.map((doctor) => (
+              <Card key={doctor.id} className="guest-card doctor-card">
+                <div className="doctor-card-content">
+                  <h3>{doctor.full_name}</h3>
+                  <p className="doctor-position">{doctor.position}</p>
+                  <RatingStars rating={doctor.average_rating} />
+                </div>
 
-              <button onClick={() => navigate(`/doctors/${doctor.id}/`)}>
-                Детальніше
-              </button>
-            </div>
-          ))}
-        </div>
+                <div className="card-footer center">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/doctors/${doctor.id}/`)}
+                  >
+                    Детальніше
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 };
 

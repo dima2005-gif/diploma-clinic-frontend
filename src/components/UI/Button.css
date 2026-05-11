@@ -1,0 +1,57 @@
+.btn {
+  border: none;
+
+  border-radius: var(--radius-md);
+
+  padding: 10px 16px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--color-green);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #16483f;
+}
+
+.btn-outline {
+  background: transparent;
+
+  border: 1px solid var(--color-border);
+
+  color: var(--color-text);
+}
+
+.btn-outline:hover {
+  border-color: var(--color-green);
+
+  color: var(--color-green);
+}
+
+.btn-danger {
+  background: var(--color-red);
+  color: white;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-info {
+  background: var(--color-blue);
+  color: #ffffff;
+  border: 1px solid var(--color-blue);
+}
+
+.btn-info:hover {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+}

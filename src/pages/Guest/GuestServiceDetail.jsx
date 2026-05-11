@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api/axios";
 
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+
+import "./GuestServiceDetail.css";
+
 const GuestServiceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,49 +27,88 @@ const GuestServiceDetail = () => {
     fetchService();
   }, [id]);
 
-  if (!service) return <div>Завантаження...</div>;
+  if (!service) {
+    return <Loader text="Завантаження послуги..." />;
+  }
 
   return (
-    <div>
-      <h2>{service.name}</h2>
+    <main className="guest-service-page">
+      <div className="detail-topbar">
+        <Button variant="outline" onClick={() => navigate("/")}>
+          Назад
+        </Button>
+      </div>
 
-      <p>{service.description}</p>
-      <p>Вартість: {service.price} грн</p>
+      <div className="service-detail-layout">
+        <Card className="service-info-card">
+          <p className="service-label">Послуга</p>
 
-      <h3>Хто надає послугу</h3>
+          <h1>{service.name}</h1>
 
-      {service.doctors.length === 0 ? (
-        <p>Лікарів для цієї послуги не знайдено.</p>
-      ) : (
-        service.doctors.map((doctor) => (
-          <div key={doctor.id}>
-            <h4>{doctor.full_name}</h4>
-            <p>{doctor.position}</p>
+          <p className="service-description">{service.description}</p>
 
-            <h5>Розклад</h5>
-
-            {doctor.schedule.length === 0 ? (
-              <p>Розклад ще не вказано.</p>
-            ) : (
-              <ul>
-                {doctor.schedule.map((item, index) => (
-                  <li key={index}>
-                    {item.day_of_week}: {item.start_time.slice(0, 5)} —{" "}
-                    {item.end_time.slice(0, 5)}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <button onClick={() => navigate(`/doctors/${doctor.id}/`)}>
-              Перейти до лікаря
-            </button>
+          <div className="service-price-block">
+            <span>Вартість</span>
+            <strong>{service.price} грн</strong>
           </div>
-        ))
-      )}
+        </Card>
 
-      <button onClick={() => navigate("/")}>Назад</button>
-    </div>
+        <section className="service-doctors-section">
+          <div className="section-heading">
+            <h2>Хто надає послугу</h2>
+            <p>Лікарі, які виконують цю медичну послугу.</p>
+          </div>
+
+          {service.doctors.length === 0 ? (
+            <Card>
+              <p className="empty-text">
+                Лікарів для цієї послуги не знайдено.
+              </p>
+            </Card>
+          ) : (
+            <div className="service-doctors-grid">
+              {service.doctors.map((doctor) => (
+                <Card key={doctor.id} className="service-doctor-card">
+                  <div>
+                    <h3>{doctor.full_name}</h3>
+                    <p className="doctor-position">{doctor.position}</p>
+
+                    <div className="doctor-schedule-block">
+                      <h4>Розклад</h4>
+
+                      {doctor.schedule.length === 0 ? (
+                        <p className="empty-text">Розклад ще не вказано.</p>
+                      ) : (
+                        <div className="doctor-schedule-list">
+                          {doctor.schedule.map((item, index) => (
+                            <div className="doctor-schedule-row" key={index}>
+                              <span>{item.day_of_week}</span>
+                              <strong>
+                                {item.start_time.slice(0, 5)} —{" "}
+                                {item.end_time.slice(0, 5)}
+                              </strong>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="card-footer center">
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate(`/doctors/${doctor.id}/`)}
+                    >
+                      Перейти до лікаря
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
   );
 };
 

@@ -2,6 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
+import Button from "../components/UI/Button";
+import Card from "../components/UI/Card";
+
+import logo from "../assets/logo-full.svg";
+
+import "./Auth.css";
+
 const PasswordReset = () => {
   const navigate = useNavigate();
 
@@ -36,28 +43,47 @@ const PasswordReset = () => {
   };
 
   return (
-    <div>
-      <h2>Відновлення доступу</h2>
+    <main className="auth-page">
+      <Card className="auth-card">
+        <img src={logo} alt="eKarta" className="auth-logo" />
 
-      <p>Введіть електронну пошту, прив'язану до вашого акаунта.</p>
+        <div className="auth-heading">
+          <h1>Відновлення доступу</h1>
+          <p>Введіть електронну пошту, прив’язану до вашого акаунта.</p>
+        </div>
 
-      <div>
-        <label>Електронна пошта</label>
-        <input
-          type="email"
-          value={email}
-          placeholder="example@gmail.com"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
+        {message && <div className="auth-message success">{message}</div>}
+        {errorMessage && (
+          <div className="auth-message error">{errorMessage}</div>
+        )}
 
-      {message && <p>{message}</p>}
-      {errorMessage && <p>{errorMessage}</p>}
+        <div className="auth-form">
+          <div className="form-group">
+            <label>Електронна пошта</label>
+            <input
+              type="email"
+              value={email}
+              placeholder="example@gmail.com"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-      <button onClick={handleSubmit}>Надіслати нові дані</button>
+          <div className="auth-actions">
+            <Button type="button" variant="primary" onClick={handleSubmit}>
+              Надіслати нові дані
+            </Button>
 
-      <button onClick={() => navigate("/login/")}>Назад до входу</button>
-    </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/login/")}
+            >
+              Назад до входу
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </main>
   );
 };
 

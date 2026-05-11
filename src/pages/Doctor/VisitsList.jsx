@@ -1,212 +1,385 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";
+import toast from "react-hot-toast";
+
+import api, { logoutUser } from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import Badge from "../../components/UI/Badge";
+import Modal from "../../components/UI/Modal";
+import DoctorLayout from "../../components/layouts/DoctorLayout";
+
+import "./VisitsList.css";
 
 const DoctorVisitsList = () => {
   const navigate = useNavigate();
+
+  const [stats, setStats] = useState(null);
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [modal, setModal] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [activeFilter, setActiveFilter] = useState("planned");
+
   useEffect(() => {
-    const fetchVisits = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get("/doctor/visit/");
-        setVisits(response.data);
+        const statsResponse = await api.get("/doctor/");
+        const visitsResponse = await api.get("/doctor/visit/");
+
+        setStats(statsResponse.data);
+        setVisits(visitsResponse.data || []);
       } catch (error) {
         console.error("Помилка при завантажені записів", error);
+        toast.error("Не вдалося завантажити записи");
       } finally {
         setLoading(false);
       }
     };
-    fetchVisits();
+
+    fetchData();
   }, []);
 
   const handleStatusChange = async () => {
     if (!modal) return;
+
     try {
+      setIsUpdating(true);
+
       await api.patch(`/doctor/visit/${modal.id}/confirm/`, {
         action: modal.action,
       });
-      setVisits(
-        visits.map((v) =>
-          v.id === modal.id
+
+      const newStatus =
+        modal.action === "confirm" ? "Підтверджено" : "Відмовлено";
+
+      setVisits((prev) =>
+        prev.map((visit) =>
+          visit.id === modal.id
             ? {
-              ...v,
-              status:
-                modal.action === "confirm" ? "Підтверджено" : "Відмовлено",
-            }
-            : v,
+                ...visit,
+                status: newStatus,
+              }
+            : visit,
         ),
       );
+
+      toast.success(
+        modal.action === "confirm"
+          ? "Запис підтверджено"
+          : "Запис відхилено",
+      );
+
       setModal(null);
     } catch (error) {
       console.error("Помилка при зміні статусу", error);
+      toast.error("Не вдалося змінити статус запису");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const plannedVisits = visits.filter((v) => v.status === "Заплановано");
-  const confirmedVisits = visits.filter((v) => v.status === "Підтверджено");
-  const archivedVisits = visits.filter((v) => v.status === "Відмовлено");
+  if (loading || !stats) {
+    return <Loader text="Завантаження записів..." />;
+  }
 
-  if (loading) return <div>Завантаження...</div>;
+  const visitGroups = {
+    planned: {
+      title: "Заплановані",
+      description: "Записи, які очікують підтвердження або відхилення.",
 
-  return (
-    <div>
-      <h2>Записи пацієнтів</h2>
+      items: visits.filter(
+        (visit) =>
+          visit.status === "Заплановано" &&
+          !visit.has_medical_history,
+      ),
+    },
 
-      {modal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "24px",
-              borderRadius: "8px",
-              minWidth: "300px",
-            }}
-          >
-            <h3>Підтвердження дії</h3>
-            <p>
-              {modal.action === "confirm"
-                ? "Ви впевнені що хочете підтвердити цей запис?"
-                : "Ви впевнені що хочете відхилити цей запис?"}
-            </p>
-            <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-              <button onClick={handleStatusChange}>
-                {modal.action === "confirm" ? "Підтвердити" : "Відхилити"}
-              </button>
-              <button onClick={() => setModal(null)}>Скасувати</button>
-            </div>
+    confirmed: {
+      title: "Підтверджені",
+      description: "Записи, з якими лікар може працювати далі.",
+
+      items: visits.filter(
+        (visit) =>
+          visit.status === "Підтверджено" &&
+          !visit.has_medical_history,
+      ),
+    },
+
+    rejected: {
+      title: "Відмовлені",
+      description: "Скасовані або відхилені записи пацієнтів.",
+
+      items: visits.filter(
+        (visit) =>
+          visit.status === "Відмовлено" &&
+          !visit.has_medical_history,
+      ),
+    },
+
+    openHistories: {
+      title: "Відкриті історії",
+      description:
+        "Медичні історії, які ще знаходяться в роботі лікаря.",
+
+      items: visits.filter(
+        (visit) =>
+          visit.has_medical_history &&
+          !visit.date_departure,
+      ),
+    },
+
+    closedHistories: {
+      title: "Закриті історії",
+      description: "Завершені медичні історії пацієнтів.",
+
+      items: visits.filter(
+        (visit) =>
+          visit.has_medical_history &&
+          visit.date_departure,
+      ),
+    },
+  };
+
+  const currentGroup = visitGroups[activeFilter];
+
+  const renderVisitCard = (visit) => (
+    <Card key={visit.id} className="doctor-visit-card">
+      <div>
+        <div className="doctor-visit-header">
+          <h3>
+            {visit.patient.first_name} {visit.patient.last_name}
+          </h3>
+
+          <Badge status={visit.status} />
+        </div>
+
+        <div className="doctor-visit-meta">
+          <div>
+            <span>Послуга</span>
+            <strong>{visit.service_name}</strong>
           </div>
+
+          <div>
+            <span>Дата прийому</span>
+
+            <strong>
+              {new Date(visit.date_prescribed).toLocaleString("uk-UA")}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {visit.status === "Заплановано" && (
+        <div className="doctor-visit-actions">
+          <Button
+            variant="primary"
+            onClick={() =>
+              setModal({
+                id: visit.id,
+                action: "confirm",
+                visit,
+              })
+            }
+          >
+            Підтвердити
+          </Button>
+
+          <Button
+            variant="danger"
+            onClick={() =>
+              setModal({
+                id: visit.id,
+                action: "reject",
+                visit,
+              })
+            }
+          >
+            Відхилити
+          </Button>
         </div>
       )}
 
-      <h3>Заплановані</h3>
-      {plannedVisits.length === 0 ? (
-        <p>Немає запланованих записів</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Пацієнт</th>
-              <th>Послуга</th>
-              <th>Дата</th>
-              <th>Статус</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {plannedVisits.map((visit) => (
-              <tr key={visit.id}>
-                <td>
-                  {visit.patient.first_name} {visit.patient.last_name}
-                </td>
-                <td>{visit.service_name}</td>
-                <td>
-                  {new Date(visit.date_prescribed).toLocaleString("uk-UA")}
-                </td>
-                <td>{visit.status}</td>
-                <td>
-                  <button
-                    onClick={() =>
-                      setModal({ id: visit.id, action: "confirm" })
-                    }
-                  >
-                    Підтвердити
-                  </button>
-                  <button
-                    onClick={() => setModal({ id: visit.id, action: "reject" })}
-                  >
-                    Відхилити
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {visit.status === "Підтверджено" && (
+        <div className="doctor-visit-actions">
+          <Button
+            variant="info"
+            onClick={() => navigate(`/doctor/visit/${visit.id}/`)}
+          >
+            Відкрити
+          </Button>
+        </div>
       )}
+    </Card>
+  );
 
-      <h3>Підтверджені</h3>
-      {confirmedVisits.length === 0 ? (
-        <p>Немає підтверджених записів</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Пацієнт</th>
-              <th>Послуга</th>
-              <th>Дата</th>
-              <th>Статус</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {confirmedVisits.map((visit) => (
-              <tr key={visit.id}>
-                <td>
-                  {visit.patient.first_name} {visit.patient.last_name}
-                </td>
-                <td>{visit.service_name}</td>
-                <td>
-                  {new Date(visit.date_prescribed).toLocaleString("uk-UA")}
-                </td>
-                <td>{visit.status}</td>
-                <td>
-                  <button
-                    onClick={() => navigate(`/doctor/visit/${visit.id}/`)}
-                  >
-                    Відкрити
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+  return (
+    <DoctorLayout
+      doctorName={stats.name}
+      position={stats.position} 
+      stats={stats}
+      onLogout={logoutUser}
+    >
+      <div className="doctor-visits-topbar">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/doctor/")}
+        >
+          Назад
+        </Button>
+      </div>
 
-      {archivedVisits.length > 0 && (
-        <>
-          <h3>Архів</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Пацієнт</th>
-                <th>Послуга</th>
-                <th>Дата</th>
-                <th>Статус</th>
-              </tr>
-            </thead>
-            <tbody>
-              {archivedVisits.map((visit) => (
-                <tr key={visit.id}>
-                  <td>
-                    {visit.patient.first_name} {visit.patient.last_name}
-                  </td>
-                  <td>{visit.service_name}</td>
-                  <td>
-                    {new Date(visit.date_prescribed).toLocaleString("uk-UA")}
-                  </td>
-                  <td>{visit.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
-      <button onClick={() => navigate("/doctor/")}>Назад</button>
-    </div>
+      <section className="doctor-visits-hero">
+        <h1>Записи пацієнтів</h1>
+
+        <p>
+          Переглядайте записи, історії хвороб та керуйте
+          робочими процесами лікаря.
+        </p>
+      </section>
+
+      <div className="doctor-filter-chips">
+        <button
+          className={
+            activeFilter === "planned"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("planned")}
+        >
+          Заплановані
+        </button>
+
+        <button
+          className={
+            activeFilter === "confirmed"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("confirmed")}
+        >
+          Підтверджені
+        </button>
+
+        <button
+          className={
+            activeFilter === "rejected"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("rejected")}
+        >
+          Відмовлені
+        </button>
+
+        <button
+          className={
+            activeFilter === "openHistories"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("openHistories")}
+        >
+          Відкриті історії
+        </button>
+
+        <button
+          className={
+            activeFilter === "closedHistories"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("closedHistories")}
+        >
+          Закриті історії
+        </button>
+      </div>
+
+      <section className="doctor-visits-section">
+        <div className="section-heading">
+          <h2>{currentGroup.title}</h2>
+          <p>{currentGroup.description}</p>
+        </div>
+
+        {currentGroup.items.length === 0 ? (
+          <Card>
+            <p className="empty-text">
+              Записів не знайдено.
+            </p>
+          </Card>
+        ) : (
+          <div className="doctor-visits-grid">
+            {currentGroup.items.map(renderVisitCard)}
+          </div>
+        )}
+      </section>
+
+      <Modal
+        isOpen={!!modal}
+        onClose={() => setModal(null)}
+      >
+        <div className="visit-confirm-modal">
+          <h2>
+            {modal?.action === "confirm"
+              ? "Підтвердити запис?"
+              : "Відхилити запис?"}
+          </h2>
+
+          <p>
+            {modal?.action === "confirm"
+              ? "Ви дійсно хочете підтвердити цей запис пацієнта?"
+              : "Ви дійсно хочете відхилити цей запис пацієнта?"}
+          </p>
+
+          {modal?.visit && (
+            <div className="modal-visit-info">
+              <span>Пацієнт</span>
+
+              <strong>
+                {modal.visit.patient.first_name}{" "}
+                {modal.visit.patient.last_name}
+              </strong>
+
+              <span>Послуга</span>
+
+              <strong>
+                {modal.visit.service_name}
+              </strong>
+            </div>
+          )}
+
+          <div className="modal-actions">
+            <Button
+              variant="outline"
+              onClick={() => setModal(null)}
+              disabled={isUpdating}
+            >
+              Скасувати
+            </Button>
+
+            <Button
+              variant={
+                modal?.action === "confirm"
+                  ? "primary"
+                  : "danger"
+              }
+              onClick={handleStatusChange}
+              disabled={isUpdating}
+            >
+              {isUpdating
+                ? "Збереження..."
+                : modal?.action === "confirm"
+                  ? "Підтвердити"
+                  : "Відхилити"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </DoctorLayout>
   );
 };
 

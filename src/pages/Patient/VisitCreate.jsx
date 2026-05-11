@@ -1,168 +1,250 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import PatientLayout from "../../components/layouts/PatientLayout";
+
+import "./VisitCreate.css";
 
 const CreateVisit = () => {
   const navigate = useNavigate();
+
+  const [patientData, setPatientData] = useState(null);
+
   const [services, setServices] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [slots, setSlots] = useState([]);
+
   const [selectedService, setSelectedService] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [message, setMessage] = useState("");
+
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await api.get("/patient/services/");
-        setServices(response.data);
+        const patientResponse = await api.get("/patient/");
+        const servicesResponse = await api.get("/patient/services/");
+
+        setPatientData(patientResponse.data);
+        setServices(servicesResponse.data || []);
       } catch (error) {
-        console.error("Помилка при завантажені послуг", error);
+        console.error("Помилка при завантаженні даних", error);
+        toast.error("Не вдалося завантажити дані");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchServices();
+
+    fetchInitialData();
   }, []);
 
-  const fetchServiceSelected = async (service) => {
-    setSelectedService({ ...service, doctors: [] });
+  const handleServiceChange = async (serviceId) => {
+    setSelectedService(serviceId);
+
     setSelectedDoctor("");
     setSelectedDate("");
-    setAvailableSlots([]);
     setSelectedSlot("");
+
+    setDoctors([]);
+    setSlots([]);
+
+    if (!serviceId) return;
+
     try {
-      const response = await api.get(`/patient/services/${service.id}/`);
-      const doctors = response.data
+      const response = await api.get(`/patient/services/${serviceId}/`);
+
+      const doctorsList = response.data
         .flatMap((item) => item.doctor)
-        .filter(Boolean)
-        .map((d) => ({ ...d, id: Number(d.id) }));
-      setSelectedService((prev) => ({ ...prev, doctors }));
+        .filter(Boolean);
+
+      setDoctors(doctorsList);
     } catch (error) {
-      console.error("Помилка при завантажені лікарів", error);
+      console.error("Помилка при завантаженні лікарів", error);
+      toast.error("Не вдалося завантажити лікарів");
     }
   };
 
-  const fetchDoctorSelected = async (doctor) => {
-    if (!doctor) return;
-    setSelectedDoctor(doctor);
-    setAvailableSlots([]);
+  const handleDoctorChange = async (doctorId) => {
+    setSelectedDoctor(doctorId);
+
     setSelectedSlot("");
+    setSlots([]);
+
+    if (doctorId && selectedDate) {
+      fetchSlots(doctorId, selectedDate);
+    }
   };
 
-  const fetchDateChange = (date) => {
+  const handleDateChange = async (date) => {
     setSelectedDate(date);
+
     setSelectedSlot("");
+    setSlots([]);
+
     if (selectedDoctor && date) {
-      fetchAvialableSlots(selectedDoctor.id, date);
+      fetchSlots(selectedDoctor, date);
     }
   };
 
-  const fetchAvialableSlots = async (doctorId, date) => {
+  const fetchSlots = async (doctorId, date) => {
     try {
       const response = await api.get(
         `/patient/appointments/availble-slots/?doctor=${doctorId}&date=${date}`,
       );
-      setAvailableSlots(response.data.slots);
+
+      setSlots(response.data.slots || []);
     } catch (error) {
-      console.error("Помилка при завантажені слотів", error);
-      setAvailableSlots([]);
+      console.error("Помилка при завантаженні слотів", error);
+
+      setSlots([]);
+
+      toast.error("Не вдалося завантажити доступний час");
     }
   };
 
-  const fetchCreateVisit = async () => {
+  const handleCreateVisit = async () => {
     if (!selectedService || !selectedDoctor || !selectedDate || !selectedSlot) {
-      setMessage("Оберіть усі параметри перед записом");
+      toast("Оберіть усі параметри візиту");
       return;
     }
+
     try {
+      setIsSubmitting(true);
+
       await api.post("/patient/visit/create/", {
-        service: selectedService.id,
-        doctor: selectedDoctor.id,
-        date_prescribed: `${selectedDate}T${selectedSlot}:00`,
+        service: selectedService,
+        doctor: selectedDoctor,
+        date_prescribed: `${selectedDate}T${selectedSlot}:00Z`,
       });
-      setMessage("Візит успішно створено!");
-      setTimeout(() => navigate(-1), 2500);
+
+      toast.success("Візит успішно створено");
+
+      setTimeout(() => {
+        navigate("/patient/visit");
+      }, 1200);
     } catch (error) {
-      console.error(error);
-      setMessage("Помилка при створенні візиту");
+      console.error("Помилка при створенні візиту", error);
+
+      toast.error("Не вдалося створити візит");
+    } finally {
+      setIsSubmitting(false);
     }
   };
-const today = new Date();
-const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  if (loading || !patientData) {
+    return <Loader text="Завантаження..." />;
+  }
+
   return (
-    <div>
-      <h2>Створення візиту</h2>
-      <div>
-        <label>Оберіть послугу:</label>
-        <select
-          onChange={(e) =>
-            fetchServiceSelected(services.find((s) => s.id == e.target.value))
-          }
-        >
-          <option value="">--Оберіть--</option>
-          {services.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+    <PatientLayout patientData={patientData}>
+      <div className="visit-create-topbar">
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Назад
+        </Button>
       </div>
 
-      {selectedService?.doctors && selectedService.doctors.length > 0 && (
-        <div>
-          <label>Оберіть лікаря:</label>
-          <select
-            onChange={(e) =>
-              fetchDoctorSelected(
-                selectedService.doctors.find(
-                  (d) => d.id == Number(e.target.value),
-                ),
-              )
-            }
-            value={selectedDoctor?.id || ""}
-          >
-            <option value="">--Оберіть--</option>
-            {selectedService.doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.first_name} {d.last_name} {d.middle_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <section className="visit-create-hero">
+        <h1>Створення візиту</h1>
 
-      {selectedDoctor && (
-        <div>
-          <label>Оберіть дату:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            min={minDate}
-            onChange={(e) => fetchDateChange(e.target.value)}
-          />
-        </div>
-      )}
+        <p>Оберіть медичну послугу, лікаря, дату та доступний час запису.</p>
+      </section>
 
-      {availableSlots.length > 0 && (
-        <div>
-          <label>Оберіть час:</label>
-          <select
-            onChange={(e) => setSelectedSlot(e.target.value)}
-            value={selectedSlot}
-          >
-            <option value="">-- Оберіть --</option>
-            {availableSlots.map((slot, idx) => (
-              <option key={idx} value={slot}>
-                {slot}
-              </option>
-            ))}
-          </select>
+      <Card className="visit-form-card">
+        <div className="visit-form-grid">
+          <div className="visit-form-group">
+            <label>Послуга</label>
+
+            <select
+              value={selectedService}
+              onChange={(e) => handleServiceChange(e.target.value)}
+            >
+              <option value="">Оберіть послугу</option>
+
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="visit-form-group">
+            <label>Лікар</label>
+
+            <select
+              value={selectedDoctor}
+              onChange={(e) => handleDoctorChange(e.target.value)}
+              disabled={!selectedService}
+            >
+              <option value="">Оберіть лікаря</option>
+
+              {doctors.map((doctor) => (
+                <option key={doctor.id} value={doctor.id}>
+                  {doctor.first_name} {doctor.last_name} {doctor.middle_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="visit-form-group">
+            <label>Дата</label>
+
+            <input
+              type="date"
+              value={selectedDate}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => handleDateChange(e.target.value)}
+              disabled={!selectedDoctor}
+            />
+          </div>
         </div>
-      )}
-      <button onClick={fetchCreateVisit}>Створити</button>
-      {message && <p>{message}</p>}
-      <button onClick={() => navigate(-1)}>Назад</button>
-    </div>
+
+        <div className="visit-slots-section">
+          <h2>Доступний час</h2>
+
+          {!selectedDoctor || !selectedDate ? (
+            <p className="empty-text">
+              Оберіть лікаря та дату для перегляду слотів.
+            </p>
+          ) : slots.length === 0 ? (
+            <p className="empty-text">На обрану дату немає доступного часу.</p>
+          ) : (
+            <div className="visit-slots-grid">
+              {slots.map((slot, index) => (
+                <button
+                  type="button"
+                  key={index}
+                  className={`slot-button ${selectedSlot === slot ? "active" : ""
+                    }`}
+                  onClick={() => setSelectedSlot(slot)}
+                >
+                  {slot}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="visit-submit-row">
+          <Button
+            variant="info"
+            onClick={handleCreateVisit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Створення..." : "Створити візит"}
+          </Button>
+        </div>
+      </Card>
+    </PatientLayout>
   );
 };
 

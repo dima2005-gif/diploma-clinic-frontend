@@ -1,0 +1,147 @@
+.visits-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.visits-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 44px 52px;
+  margin-bottom: 36px;
+}
+
+.visits-hero h1 {
+  margin: 0 0 14px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.visits-hero p {
+  margin: 0;
+  max-width: 820px;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.visits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.visit-card {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.visit-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.visit-card-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.visit-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.visit-meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.visit-meta span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.visit-meta strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+.visit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.confirm-modal {
+  width: 100%;
+  max-width: 460px;
+}
+
+.confirm-modal h2 {
+  margin: 0 0 12px;
+  font-size: 26px;
+}
+
+.confirm-modal p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+@media (max-width: 1200px) {
+  .visits-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .visits-topbar {
+    flex-direction: column;
+  }
+
+  .visits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visits-hero {
+    padding: 32px 24px;
+  }
+
+  .visits-hero h1 {
+    font-size: 34px;
+  }
+}

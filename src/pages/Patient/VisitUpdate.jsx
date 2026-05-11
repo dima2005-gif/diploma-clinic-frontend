@@ -1,209 +1,287 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import PatientLayout from "../../components/layouts/PatientLayout";
+
+import "./VisitUpdate.css";
 
 const UpdateVisit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const [patientData, setPatientData] = useState(null);
   const [services, setServices] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+  const [slots, setSlots] = useState([]);
+
   const [selectedService, setSelectedService] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [message, setMessage] = useState("");
-  const [isLocked, setIsLocked] = useState(false); // если не "Заплановано"
 
-  // Загружаем существующий визит
+  const [isLocked, setIsLocked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     const fetchVisit = async () => {
       try {
-        const res = await api.get(`/patient/visit/${id}/update/`);
-        const visit = res.data;
+        const patientResponse = await api.get("/patient/");
+        const visitResponse = await api.get(`/patient/visit/${id}/update/`);
+        const servicesResponse = await api.get("/patient/services/");
+
+        const visit = visitResponse.data;
+
+        setPatientData(patientResponse.data);
+        setServices(servicesResponse.data || []);
 
         if (visit.status !== "Заплановано") {
           setIsLocked(true);
-          setMessage("Цей запис не можна редагувати");
           return;
         }
 
-        // Заполняем дату и время из существующего визита
         const dt = new Date(visit.date_prescribed);
         const date = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
         const time = `${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+
+        setSelectedService(String(visit.service.id));
+        setSelectedDoctor(String(visit.doctor.id));
         setSelectedDate(date);
         setSelectedSlot(time);
-        setSelectedDoctor(visit.doctor);
 
-        // Загружаем услуги
-        const servicesRes = await api.get("/patient/services/");
-        setServices(servicesRes.data);
-
-        // Загружаем докторов для услуги
-        const doctorsRes = await api.get(
+        const doctorsResponse = await api.get(
           `/patient/services/${visit.service.id}/`,
         );
-        const doctors = doctorsRes.data
+        const doctorsList = (doctorsResponse.data || [])
           .flatMap((item) => item.doctor)
-          .filter(Boolean)
-          .map((d) => ({ ...d, id: Number(d.id) }));
+          .filter(Boolean);
 
-        setSelectedService({ ...visit.service, doctors });
+        setDoctors(doctorsList);
 
-        // Загружаем слоты
-        const slotsRes = await api.get(
+        const slotsResponse = await api.get(
           `/patient/appointments/availble-slots/?doctor=${visit.doctor.id}&date=${date}`,
         );
-        setAvailableSlots(slotsRes.data.slots);
+
+        setSlots(slotsResponse.data.slots || []);
       } catch (error) {
         console.error("Помилка при завантаженні візиту", error);
+        toast.error("Не вдалося завантажити візит");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchVisit();
   }, [id]);
 
-  const fetchServiceSelected = async (service) => {
-    setSelectedService({ ...service, doctors: [] });
+  const handleServiceChange = async (serviceId) => {
+    setSelectedService(serviceId);
     setSelectedDoctor("");
-    setAvailableSlots([]);
+    setSelectedDate("");
     setSelectedSlot("");
+    setDoctors([]);
+    setSlots([]);
+
+    if (!serviceId) return;
+
     try {
-      const response = await api.get(`/patient/services/${service.id}/`);
-      const doctors = response.data
+      const response = await api.get(`/patient/services/${serviceId}/`);
+
+      const doctorsList = (response.data || [])
         .flatMap((item) => item.doctor)
-        .filter(Boolean)
-        .map((d) => ({ ...d, id: Number(d.id) }));
-      setSelectedService((prev) => ({ ...prev, doctors }));
+        .filter(Boolean);
+
+      setDoctors(doctorsList);
     } catch (error) {
       console.error("Помилка при завантаженні лікарів", error);
+      toast.error("Не вдалося завантажити лікарів");
     }
   };
 
-  const fetchDateChange = (date) => {
+  const handleDoctorChange = (doctorId) => {
+    setSelectedDoctor(doctorId);
+    setSelectedSlot("");
+    setSlots([]);
+
+    if (doctorId && selectedDate) {
+      fetchSlots(doctorId, selectedDate);
+    }
+  };
+
+  const handleDateChange = (date) => {
     setSelectedDate(date);
     setSelectedSlot("");
+    setSlots([]);
+
     if (selectedDoctor && date) {
-      fetchAvailableSlots(selectedDoctor.id, date);
+      fetchSlots(selectedDoctor, date);
     }
   };
 
-  const fetchAvailableSlots = async (doctorId, date) => {
+  const fetchSlots = async (doctorId, date) => {
     try {
       const response = await api.get(
         `/patient/appointments/availble-slots/?doctor=${doctorId}&date=${date}`,
       );
-      setAvailableSlots(response.data.slots);
+
+      setSlots(response.data.slots || []);
     } catch (error) {
       console.error("Помилка при завантаженні слотів", error);
-      setAvailableSlots([]);
+      setSlots([]);
+      toast.error("Не вдалося завантажити доступний час");
     }
   };
 
-  const fetchUpdateVisit = async () => {
+  const handleUpdateVisit = async () => {
     if (!selectedService || !selectedDoctor || !selectedDate || !selectedSlot) {
-      setMessage("Оберіть усі параметри");
+      toast("Оберіть усі параметри візиту");
       return;
     }
+
     try {
+      setIsSubmitting(true);
+
       await api.put(`/patient/visit/${id}/update/`, {
-        service_id: selectedService.id,
-        doctor_id: selectedDoctor.id,
+        service_id: selectedService,
+        doctor_id: selectedDoctor,
         date_prescribed: `${selectedDate}T${selectedSlot}:00`,
       });
-      setMessage("Візит успішно оновлено!");
-      setTimeout(() => navigate(-1), 2500);
+
+      toast.success("Візит успішно оновлено");
+
+      setTimeout(() => {
+        navigate("/patient/visit");
+      }, 1200);
     } catch (error) {
-      console.error(error);
-      setMessage("Помилка при оновленні візиту");
+      console.error("Помилка при оновленні візиту", error);
+      toast.error("Не вдалося оновити візит");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (isLocked) {
-    return (
-      <div>
-        <p>{message}</p>
-        <button onClick={() => navigate(-1)}>Назад</button>
-      </div>
-    );
+  if (loading || !patientData) {
+    return <Loader text="Завантаження візиту..." />;
   }
 
   return (
-    <div>
-      <h2>Редагування візиту</h2>
-
-      <div>
-        <label>Оберіть послугу:</label>
-        <select
-          value={selectedService?.id || ""}
-          onChange={(e) =>
-            fetchServiceSelected(services.find((s) => s.id == e.target.value))
-          }
-        >
-          <option value="">--Оберіть--</option>
-          {services.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+    <PatientLayout patientData={patientData}>
+      <div className="visit-update-topbar">
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Назад
+        </Button>
       </div>
 
-      {selectedService?.doctors?.length > 0 && (
-        <div>
-          <label>Оберіть лікаря:</label>
-          <select
-            value={selectedDoctor?.id || ""}
-            onChange={(e) =>
-              setSelectedDoctor(
-                selectedService.doctors.find(
-                  (d) => d.id == Number(e.target.value),
-                ),
-              )
-            }
-          >
-            <option value="">--Оберіть--</option>
-            {selectedService.doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.first_name} {d.last_name} {d.middle_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      {isLocked ? (
+        <Card className="visit-locked-card">
+          <h1>Редагування недоступне</h1>
+          <p>
+            Цей запис не можна редагувати, оскільки він вже не має статусу
+            “Заплановано”.
+          </p>
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            Повернутися назад
+          </Button>
+        </Card>
+      ) : (
+        <>
+          <section className="visit-update-hero">
+            <h1>Редагування візиту</h1>
+            <p>Змініть послугу, лікаря, дату або доступний час запису.</p>
+          </section>
 
-      {selectedDoctor && (
-        <div>
-          <label>Оберіть дату:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            min={new Date().toISOString().split("T")[0]}
-            onChange={(e) => fetchDateChange(e.target.value)}
-          />
-        </div>
-      )}
+          <Card className="visit-form-card">
+            <div className="visit-form-grid">
+              <div className="visit-form-group">
+                <label>Послуга</label>
+                <select
+                  value={selectedService}
+                  onChange={(e) => handleServiceChange(e.target.value)}
+                >
+                  <option value="">Оберіть послугу</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {availableSlots.length > 0 && (
-        <div>
-          <label>Оберіть час:</label>
-          <select
-            value={selectedSlot}
-            onChange={(e) => setSelectedSlot(e.target.value)}
-          >
-            <option value="">--Оберіть--</option>
-            {availableSlots.map((slot, idx) => (
-              <option key={idx} value={slot}>
-                {slot}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+              <div className="visit-form-group">
+                <label>Лікар</label>
+                <select
+                  value={selectedDoctor}
+                  onChange={(e) => handleDoctorChange(e.target.value)}
+                  disabled={!selectedService}
+                >
+                  <option value="">Оберіть лікаря</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.first_name} {doctor.last_name}{" "}
+                      {doctor.middle_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      <button onClick={fetchUpdateVisit}>Зберегти</button>
-      {message && <p>{message}</p>}
-      <button onClick={() => navigate(-1)}>Назад</button>
-    </div>
+              <div className="visit-form-group">
+                <label>Дата</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  disabled={!selectedDoctor}
+                />
+              </div>
+            </div>
+
+            <div className="visit-slots-section">
+              <h2>Доступний час</h2>
+
+              {!selectedDoctor || !selectedDate ? (
+                <p className="empty-text">
+                  Оберіть лікаря та дату для перегляду слотів.
+                </p>
+              ) : slots.length === 0 ? (
+                <p className="empty-text">
+                  На обрану дату немає доступного часу.
+                </p>
+              ) : (
+                <div className="visit-slots-grid">
+                  {slots.map((slot, index) => (
+                    <button
+                      type="button"
+                      key={index}
+                      className={`slot-button ${selectedSlot === slot ? "active" : ""}`}
+                      onClick={() => setSelectedSlot(slot)}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="visit-submit-row">
+              <Button
+                variant="info"
+                onClick={handleUpdateVisit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Збереження..." : "Зберегти зміни"}
+              </Button>
+            </div>
+          </Card>
+        </>
+      )}
+    </PatientLayout>
   );
 };
 

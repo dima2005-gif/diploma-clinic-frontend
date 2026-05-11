@@ -1,10 +1,30 @@
 :root {
-  --color-blue: #76a7e9;
-  --color-red: #f76767;
-  --color-yellow: #faa846;
-  --color-green: #1b5a4f;
-  --background-color: #f5f5f5;
-  --color-white: #ffffff;
-  --color-black: #1e1e1e;
+  /* Background */
+  --color-bg: #f8f8ff;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f9fbfa;
 
+  /* Text */
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-text-light: #9ca3af;
+
+  /* Borders */
+  --color-border: #e7eaf0;
+  /* Accent palette */
+  --color-green: #1b5a4f;
+  --color-yellow: #faa846;
+  --color-red: #f76767;
+  --color-blue: #76a7e9;
+  --color-purple: #b16286;
+  --color-aqua: #689d6a;
+  --color-orange: #d65d0e;
+
+  /* UI */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Layout */
+  --container-padding: 24px;
 }

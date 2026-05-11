@@ -1,0 +1,21 @@
+.rating-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.star {
+  color: var(--color-border);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.star.filled {
+  color: var(--color-yellow);
+}
+
+.rating-empty {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

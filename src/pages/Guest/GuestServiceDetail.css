@@ -1,0 +1,187 @@
+.guest-service-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.detail-topbar {
+  margin-bottom: 24px;
+}
+
+.service-detail-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.service-info-card {
+  position: sticky;
+  top: 32px;
+}
+
+.service-label {
+  margin: 0 0 12px;
+  color: var(--color-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.service-info-card h1 {
+  margin: 0 0 16px;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.service-description {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.service-price-block {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-price-block span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.service-price-block strong {
+  color: var(--color-green);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.service-doctors-section {
+  width: 100%;
+}
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.section-heading p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.service-doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.service-doctor-card {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.service-doctor-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.doctor-position {
+  margin: 0 0 22px;
+  color: var(--color-text-muted);
+}
+
+.doctor-schedule-block {
+  margin-top: 18px;
+}
+
+.doctor-schedule-block h4 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.doctor-schedule-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-schedule-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.doctor-schedule-row:last-child {
+  border-bottom: none;
+}
+
+.doctor-schedule-row span {
+  color: var(--color-text-muted);
+}
+
+.doctor-schedule-row strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.card-footer.center {
+  justify-content: center;
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 1100px) {
+  .service-detail-layout {
+    grid-template-columns: 320px 1fr;
+  }
+
+  .service-doctors-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .guest-service-page {
+    padding: 24px;
+  }
+
+  .service-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .service-info-card {
+    position: static;
+  }
+
+  .doctor-schedule-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

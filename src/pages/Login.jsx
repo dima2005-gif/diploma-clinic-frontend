@@ -1,5 +1,11 @@
 import React from "react";
 import api from "../api/axios";
+import Button from "../components/UI/Button";
+import Card from "../components/UI/Card";
+
+import logo from "../assets/logo-full.svg";
+
+import "./Auth.css";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -48,31 +54,64 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h2>Вхід у систему</h2>
-      <form onSubmit={handleLogin}>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <input
-          type="text"
-          placeholder="Логін"
-          value={username}
-          required
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          required
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <a href="/password-reset/">
-          <p>Забули пароль?</p>
-        </a>
-        <button type="submit">Увійти</button>
-        <button onClick={() => navigate("/")}>Вийти</button>
-      </form>
-    </div>
+    <main className="auth-page">
+      <Card className="auth-card">
+        <img src={logo} alt="eKarta" className="auth-logo" />
+
+        <div className="auth-heading">
+          <h1>Вхід у систему</h1>
+          <p>Увійдіть до свого акаунта для продовження роботи.</p>
+        </div>
+
+        {error && <div className="auth-message error">{error}</div>}
+
+        <form className="auth-form" onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>Логін</label>
+            <input
+              type="text"
+              placeholder="Введіть логін"
+              value={username}
+              required
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Пароль</label>
+            <input
+              type="password"
+              placeholder="Введіть пароль"
+              value={password}
+              required
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="auth-link"
+            onClick={() => navigate("/password-reset/")}
+          >
+            Забули пароль?
+          </button>
+
+          <div className="auth-actions">
+            <Button type="submit" variant="primary">
+              Увійти
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/")}
+            >
+              Назад
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </main>
   );
 };
 

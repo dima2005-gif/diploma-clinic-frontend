@@ -1,7 +1,13 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
+
 import MedicinesView from "./MedicinewView.jsx";
 import MedicinesForm from "./MedicineForm.jsx";
 import api from "../../../api/axios";
+
+import Card from "../../UI/Card";
+
+import "./MedicinesTab.css";
 
 const MedicinesTab = ({ visit, refresh }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -17,15 +23,28 @@ const MedicinesTab = ({ visit, refresh }) => {
       await api.delete(
         `/doctor/visit/${visit.id}/${medicineId}/delete-medicines/`,
       );
+
       await refresh();
+
+      toast.success("Ліки видалено");
     } catch (error) {
       console.error("Помилка при видаленні ліків", error);
+      toast.error("Не вдалося видалити ліки");
     }
   };
 
   return (
-    <div>
-      <h3>Ліки</h3>
+    <Card className="medicines-tab-card">
+      <div className="tab-section-heading">
+        <h2>Ліки</h2>
+        <p>Призначені лікарські засоби та рекомендації щодо застосування.</p>
+      </div>
+
+      {isHistoryClosed && (
+        <div className="readonly-notice">
+          Історію хвороби закрито. Редагування ліків недоступне.
+        </div>
+      )}
 
       {isEditing && !isHistoryClosed ? (
         <MedicinesForm
@@ -53,7 +72,7 @@ const MedicinesTab = ({ visit, refresh }) => {
           onDelete={handleDelete}
         />
       )}
-    </div>
+    </Card>
   );
 };
 

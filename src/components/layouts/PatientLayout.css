@@ -1,0 +1,103 @@
+.patient-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.patient-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.patient-info-card {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 32px;
+}
+
+.patient-label {
+  margin: 0 0 12px;
+  color: var(--color-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.patient-info-card h1 {
+  margin: 0 0 18px;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.patient-main-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.patient-main-info p {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.patient-contact-list div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.patient-contact-list span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.patient-contact-list strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.patient-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (max-width: 1200px) {
+  .patient-layout {
+    grid-template-columns: 320px 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .patient-page {
+    padding: 24px;
+  }
+
+  .patient-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-info-card {
+    position: static;
+    min-height: auto;
+    gap: 28px;
+  }
+}

@@ -1,31 +1,48 @@
+import Button from "../../UI/Button";
+
 const DiagnosisView = ({ visit, isReadOnly, onEdit, onDelete }) => {
   const history = visit.history || null;
 
   if (!history?.diagnosis) {
     return (
-      <div>
-        <p>Діагноз ще не призначено</p>
+      <div className="diagnosis-empty">
+        <h3>Діагноз ще не призначено</h3>
 
-        {!isReadOnly && <button onClick={onEdit}>Додати діагноз</button>}
+        <p>Для цього прийому ще не вказано діагноз та висновок лікаря.</p>
+
+        {!isReadOnly && (
+          <Button variant="info" onClick={onEdit}>
+            Додати діагноз
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
-    <div>
-      <p>
-        <strong>Діагноз:</strong> {history.diagnosis}
-      </p>
+    <div className="diagnosis-view">
+      <div className="diagnosis-info-grid">
+        <div>
+          <span>Діагноз</span>
+          <strong>{history.diagnosis?.name || history.diagnosis}</strong>
+        </div>
 
-      <p>
-        <strong>Висновок:</strong> {history.conclusion}
-      </p>
+        <div className="diagnosis-conclusion">
+          <span>Висновок</span>
+          <p>{history.conclusion || "Висновок не вказано."}</p>
+        </div>
+      </div>
 
       {!isReadOnly && (
-        <>
-          <button onClick={onEdit}>Редагувати</button>
-          <button onClick={onDelete}>Видалити</button>
-        </>
+        <div className="diagnosis-actions">
+          <Button variant="outline" onClick={onEdit}>
+            Редагувати
+          </Button>
+
+          <Button variant="danger" onClick={onDelete}>
+            Видалити
+          </Button>
+        </div>
       )}
     </div>
   );

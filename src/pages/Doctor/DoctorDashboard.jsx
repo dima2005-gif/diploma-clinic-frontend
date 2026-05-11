@@ -2,9 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { logoutUser } from "../../api/axios";
 
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import DoctorLayout from "../../components/layouts/DoctorLayout";
+
+import "./DoctorDashboard.css";
+
 const DoctorDashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState();
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -15,47 +22,74 @@ const DoctorDashboard = () => {
         console.error("Помилка при завантажені", error);
       }
     };
+
     fetchStats();
   }, []);
 
-  if (!stats) return <div>Завантаження...</div>;
+  if (!stats) {
+    return <Loader text="Завантаження кабінету лікаря..." />;
+  }
 
   return (
-    <div>
-      <h2>Вітаємо, {stats.name}</h2>
-
-      <div>
+    <DoctorLayout
+      doctorName={stats.name}
+      position={stats.position}
+      stats={stats}
+      onLogout={logoutUser}
+    >
+      <section className="doctor-hero">
         <div>
-          <p>Сьогодні записів</p>
-          <p>{stats.today_count}</p>
+          <h1>Вітаємо, {stats.name}</h1>
+          <p>
+            Тут відображається основна інформація про прийоми, записи та робочі
+            процеси лікаря.
+          </p>
         </div>
-      </div>
+      </section>
 
-      <div>
-        <div>
-          <p>Заплановано</p>
-          <p>{stats.planned_count}</p>
+      <section className="doctor-section">
+        <div className="section-heading">
+          <h2>Найближчий прийом</h2>
+          <p>Наступний запланований візит пацієнта.</p>
         </div>
-      </div>
 
-      <div>
-        <div>
-          <p>Підтверджено</p>
-          <p>{stats.confirmed_count}</p>
+        <Card className="next-visit-card">
+          {stats.next_visit?.time ? (
+            <>
+              <div>
+                <span>Час прийому</span>
+                <strong>{stats.next_visit.time}</strong>
+              </div>
+
+              <div>
+                <span>Пацієнт</span>
+                <strong>{stats.next_visit.patient}</strong>
+              </div>
+            </>
+          ) : (
+            <p className="empty-text">Найближчих прийомів немає.</p>
+          )}
+        </Card>
+      </section>
+
+      <section className="doctor-section">
+        <div className="section-heading">
+          <h2>Робочі розділи</h2>
+          <p>Перейдіть до потрібного робочого розділу.</p>
         </div>
-      </div>
 
-      {stats.next_visit.time ? (
-        <p>
-          Найближчий прийом: {stats.next_visit.time} -{" "}
-          {stats.next_visit.patient}
-        </p>
-      ) : (
-        <p>Найближчих прийомів немає</p>
-      )}
-      <button onClick={() => navigate("/doctor/visit/")}>Візити</button>
-      <button onClick={logoutUser}>Вийти</button>
-    </div>
+        <div className="doctor-actions-grid">
+          <Card className="doctor-action-card blue">
+            <h3>Візити</h3>
+            <p>Перегляд записів пацієнтів, підтвердження або відмова.</p>
+
+            <Button variant="info" onClick={() => navigate("/doctor/visit/")}>
+              Перейти
+            </Button>
+          </Card>
+        </div>
+      </section>
+    </DoctorLayout>
   );
 };
 

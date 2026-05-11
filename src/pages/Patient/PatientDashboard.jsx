@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import api, { logoutUser } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import PatientLayout from "../../components/layouts/PatientLayout";
+
+import "./PatientDashboard.css";
+
 const PatientDashboard = () => {
   const navigate = useNavigate();
   const [patientData, setPatientData] = useState(null);
@@ -18,11 +25,12 @@ const PatientDashboard = () => {
         );
       }
     };
+
     fetchPatientData();
   }, []);
 
   const getBMICategory = (bmi) => {
-    if (!bmi) return "";
+    if (!bmi) return "Не вказано";
     if (bmi < 18.5) return "Дефіцит маси тіла";
     if (bmi < 25) return "Нормальна вага";
     if (bmi < 30) return "Надлишкова вага";
@@ -30,41 +38,113 @@ const PatientDashboard = () => {
   };
 
   if (!patientData) {
-    return <div>Завантаження даних пацієнта...</div>;
+    return <Loader text="Завантаження даних пацієнта..." />;
   }
+
   return (
-    <div className="patient-dashboard">
-      <h1>Вітаємо {patientData.first_name}</h1>
-      <p>Ваші дані:</p>
-      <ul>
-        <li>Ім'я: {patientData.first_name}</li>
-        <li>Прізвище: {patientData.last_name}</li>
-        <li>По батькові: {patientData.middle_name}</li>
-        <li>Вік: {patientData.age}</li>
-        <li>Номер телефону: {patientData.phone_number}</li>
-        <li>Email: {patientData.email}</li>
-        <li>Адреса проживання: {patientData.address}</li>
-        <li>Стать: {patientData.sex}</li>
-        <li>Вага: {patientData.weight}</li>
-        <li>Зріст: {patientData.height}</li>
-        <li>
-          ІМТ: {patientData.bmi} {getBMICategory(patientData.bmi)}
-        </li>
-        <li>Група крові: {patientData.blood_group}</li>
-      </ul>
-      <button onClick={logoutUser}>Вийти</button>
-      <button onClick={() => navigate("/patient/services")}>
-        Переглянути послуги
-      </button>
-      <button onClick={() => navigate("/patient/analysis")}>
-        Переглянути аналізи
-      </button>
-      <button onClick={() => navigate("/patient/medical-history")}>
-        Переглянути історію хвороб
-      </button>
-      <button onClick={() => navigate("/patient/visit")}>Візити</button>
-      <button onClick={() => navigate("/patient/responses")}>Відгуки</button>
-    </div>
+    <PatientLayout patientData={patientData} onLogout={logoutUser}>
+      <section className="patient-hero">
+        <h2>Вітаємо, {patientData.first_name}</h2>
+        <p>
+          Тут ви можете переглядати доступні послуги, аналізи, історію хвороб,
+          візити та залишати відгуки.
+        </p>
+      </section>
+
+      <section className="patient-section">
+        <div className="section-heading">
+          <h2>Медичні показники</h2>
+          <p>Основна інформація про стан пацієнта.</p>
+        </div>
+
+        <div className="patient-stats-grid">
+          <Card className="patient-stat-card">
+            <span>Вага</span>
+            <strong>{patientData.weight} кг</strong>
+          </Card>
+
+          <Card className="patient-stat-card">
+            <span>Зріст</span>
+            <strong>{patientData.height} см</strong>
+          </Card>
+
+          <Card className="patient-stat-card">
+            <span>ІМТ</span>
+            <strong>{patientData.bmi}</strong>
+            <p>{getBMICategory(patientData.bmi)}</p>
+          </Card>
+
+          <Card className="patient-stat-card">
+            <span>Група крові</span>
+            <strong>{patientData.blood_group}</strong>
+          </Card>
+        </div>
+      </section>
+
+      <section className="patient-section">
+        <div className="section-heading">
+          <h2>Швидкі дії</h2>
+          <p>Оберіть потрібний розділ особистого кабінету.</p>
+        </div>
+
+        <div className="patient-actions-grid">
+          <Card className="patient-action-card blue">
+            <h3>Послуги</h3>
+            <p>Перегляд доступних медичних послуг.</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/patient/services")}
+            >
+              Перейти
+            </Button>
+          </Card>
+
+          <Card className="patient-action-card yellow">
+            <h3>Аналізи</h3>
+            <p>Перегляд призначених аналізів та результатів.</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/patient/analysis")}
+            >
+              Перейти
+            </Button>
+          </Card>
+
+          <Card className="patient-action-card green">
+            <h3>Історія хвороб</h3>
+            <p>Перегляд медичної історії та призначень.</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/patient/medical-history")}
+            >
+              Перейти
+            </Button>
+          </Card>
+
+          <Card className="patient-action-card red">
+            <h3>Візити</h3>
+            <p>Перегляд запланованих та минулих візитів.</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/patient/visit")}
+            >
+              Перейти
+            </Button>
+          </Card>
+
+          <Card className="patient-action-card aqua">
+            <h3>Відгуки</h3>
+            <p>Перегляд та створення відгуків про послуги.</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/patient/responses")}
+            >
+              Перейти
+            </Button>
+          </Card>
+        </div>
+      </section>
+    </PatientLayout>
   );
 };
 
