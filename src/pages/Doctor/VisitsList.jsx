@@ -2,21 +2,21 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-import api, { logoutUser } from "../../api/axios";
+import api from "../../api/axios";
 
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
 import Modal from "../../components/UI/Modal";
-import DoctorLayout from "../../components/layouts/DoctorLayout";
+
 
 import "./VisitsList.css";
 
 const DoctorVisitsList = () => {
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState(null);
+
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,11 +28,9 @@ const DoctorVisitsList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsResponse = await api.get("/doctor/");
-        const visitsResponse = await api.get("/doctor/visit/");
+const response = await api.get("/doctor/visit/");
 
-        setStats(statsResponse.data);
-        setVisits(visitsResponse.data || []);
+setVisits(response.data || []);
       } catch (error) {
         console.error("Помилка при завантажені записів", error);
         toast.error("Не вдалося завантажити записи");
@@ -83,7 +81,7 @@ const DoctorVisitsList = () => {
     }
   };
 
-  if (loading || !stats) {
+  if (loading ) {
     return <Loader text="Завантаження записів..." />;
   }
 
@@ -218,13 +216,8 @@ const DoctorVisitsList = () => {
   );
 
   return (
-    <DoctorLayout
-      doctorName={stats.name}
-      position={stats.position} 
-      stats={stats}
-      onLogout={logoutUser}
-    >
-      <div className="doctor-visits-topbar">
+    <main className="doctor-visits-page">
+         <div className="doctor-visits-topbar">
         <Button
           variant="outline"
           onClick={() => navigate("/doctor/")}
@@ -379,7 +372,7 @@ const DoctorVisitsList = () => {
           </div>
         </div>
       </Modal>
-    </DoctorLayout>
+</main>
   );
 };
 

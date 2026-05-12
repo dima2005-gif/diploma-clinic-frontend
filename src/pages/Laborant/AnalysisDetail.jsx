@@ -1,119 +1,230 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import LaborantAnalysisResultForm from "../../components/laborant/analysis/LaborantAnalysisResultForm";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import Badge from "../../components/UI/Badge";
+import Modal from "../../components/UI/Modal";
+
+import "./AnalysisDetail.css";
 
 const LaborantAnalysisDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [analysis, setAnalysis] = useState(null);
-  const [isEditingResult, setIsEditingResult] = useState(false);
 
-  const fetchAnalysis = async () => {
+  const [isEditingResult, setIsEditingResult] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const fetchData = async () => {
     try {
       const response = await api.get(`/laborant/analysis/${id}/`);
+
       setAnalysis(response.data);
     } catch (error) {
       console.error("Помилка при завантаженні аналізу", error);
+      toast.error("Не вдалося завантажити аналіз");
     }
   };
 
-  const handleDeleteResult = async () => {
-    const confirmed = window.confirm(
-      "Ви впевнені, що хочете видалити результат аналізу?",
-    );
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
-    if (!confirmed) return;
+  const handleDeleteResult = async () => {
+    if (!analysis) return;
 
     try {
+      setIsDeleting(true);
+
       await api.delete(`/laborant/analysis/${analysis.id}/result/delete/`);
-      await fetchAnalysis();
+
+      toast.success("Результат аналізу видалено");
+
+      await fetchData();
+
+      setDeleteModal(false);
     } catch (error) {
       const message =
         error.response?.data?.error || "Помилка при видаленні результату";
+
       console.error("Помилка при видаленні результату", error);
-      alert(message);
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
     }
   };
-  useEffect(() => {
-    fetchAnalysis();
-  }, [id]);
 
-  if (!analysis) return <div>Завантаження...</div>;
+  if (!analysis) {
+    return <Loader text="Завантаження аналізу..." />;
+  }
+
+  const canEditResult = analysis.status === "Підтверджено";
 
   return (
-    <div>
-      <h2>Аналіз</h2>
-
-      <div>
-        <h3>Пацієнт</h3>
-        <p>{analysis.patient.full_name}</p>
+    <main className="analysis-detail-page">
+      <div className="analysis-detail-topbar">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/laborant/analyses/")}
+        >
+          Назад
+        </Button>
       </div>
 
-      <div>
-        <h3>Лікар</h3>
-        <p>{analysis.doctor.full_name}</p>
+      <section className="analysis-detail-hero">
+        <div>
+          <h1>{analysis.analysis.name}</h1>
+
+          <p>
+            {analysis.patient.full_name} •{" "}
+            {new Date(analysis.date_prescribed).toLocaleString("uk-UA")}
+          </p>
+        </div>
+
+        <Badge status={analysis.status} />
+      </section>
+
+      <div className="analysis-detail-grid">
+        <Card className="analysis-info-card">
+          <h3>Інформація про аналіз</h3>
+
+          <div className="analysis-info-list">
+            <div>
+              <span>Пацієнт</span>
+              <strong>{analysis.patient.full_name}</strong>
+            </div>
+
+            <div>
+              <span>Лікар</span>
+              <strong>{analysis.doctor.full_name}</strong>
+            </div>
+
+            <div>
+              <span>Аналіз</span>
+              <strong>{analysis.analysis.name}</strong>
+            </div>
+
+            <div>
+              <span>Дата проведення</span>
+              <strong>
+                {new Date(analysis.date_prescribed).toLocaleString("uk-UA")}
+              </strong>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="analysis-result-card">
+          <h3>Результат</h3>
+
+          {isEditingResult ? (
+            <LaborantAnalysisResultForm
+              analysisId={analysis.id}
+              onCancel={() => setIsEditingResult(false)}
+              onSuccess={async () => {
+                await fetchData();
+                setIsEditingResult(false);
+              }}
+            />
+          ) : (
+            <div className="analysis-result-content">
+              {analysis.status === "Відмовлено" ? (
+                <div className="result-state danger">
+                  <span>Стан результату</span>
+                  <strong>Аналіз було відхилено</strong>
+                  <p>Для відхиленого аналізу результат не додається.</p>
+                </div>
+              ) : analysis.result_url ? (
+                <>
+                  <div className="result-state success">
+                    <span>Стан результату</span>
+                    <strong>Результат завантажено</strong>
+                  </div>
+
+                  <div className="analysis-result-actions">
+                    <Button
+                      variant="info"
+                      onClick={() => window.open(analysis.result_url, "_blank")}
+                    >
+                      Переглянути результат
+                    </Button>
+
+                    {canEditResult && (
+                      <>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditingResult(true)}
+                        >
+                          Оновити результат
+                        </Button>
+
+                        <Button
+                          variant="danger"
+                          onClick={() => setDeleteModal(true)}
+                        >
+                          Видалити результат
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="result-state warning">
+                    <span>Стан результату</span>
+                    <strong>Результат ще не додано</strong>
+                    <p>Завантажте PDF-файл з результатом дослідження.</p>
+                  </div>
+
+                  {canEditResult && (
+                    <Button
+                      variant="info"
+                      onClick={() => setIsEditingResult(true)}
+                    >
+                      Додати результат
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </Card>
       </div>
 
-      <div>
-        <h3>Аналіз</h3>
-        <p>{analysis.analysis.name}</p>
-        <p>
-          Дата аналізу:{" "}
-          {new Date(analysis.date_prescribed).toLocaleString("uk-UA")}
-        </p>
-        <p>Статус: {analysis.status}</p>
-      </div>
+      <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)}>
+        <div className="delete-result-modal">
+          <h2>Видалити результат?</h2>
 
-      <div>
-        <h3>Результат</h3>
+          <p>Ви дійсно хочете видалити PDF-файл результату цього аналізу?</p>
 
-        {isEditingResult ? (
-          <LaborantAnalysisResultForm
-            analysisId={analysis.id}
-            onCancel={() => setIsEditingResult(false)}
-            onSuccess={async () => {
-              await fetchAnalysis();
-              setIsEditingResult(false);
-            }}
-          />
-        ) : (
-          <>
-            {analysis.result_url ? (
-              <>
-                <a
-                  href={analysis.result_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Переглянути результат
-                </a>
+          <div className="modal-actions">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModal(false)}
+              disabled={isDeleting}
+            >
+              Скасувати
+            </Button>
 
-                <br />
-
-                <button onClick={() => setIsEditingResult(true)}>
-                  Оновити результат
-                </button>
-
-                <button onClick={handleDeleteResult}>Видалити результат</button>
-              </>
-            ) : (
-              <>
-                <p>Результат ще не додано</p>
-
-                {analysis.status === "Підтверджено" && (
-                  <button onClick={() => setIsEditingResult(true)}>
-                    Додати результат
-                  </button>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
-      <button onClick={() => navigate("/laborant/analyses/")}>Назад</button>
-    </div>
+            <Button
+              variant="danger"
+              onClick={handleDeleteResult}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Видалення..." : "Видалити"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </main>
   );
 };
 

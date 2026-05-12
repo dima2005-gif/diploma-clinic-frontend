@@ -5,23 +5,19 @@ import api from "../../api/axios";
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./MedicalHistoryDashboard.css";
 
 const MedicalHistory = () => {
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
   const [history, setHistory] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const historyResponse = await api.get("/patient/medical-history/");
 
-        setPatientData(patientResponse.data);
         setHistory(historyResponse.data);
       } catch (error) {
         console.error("Помилка при завантажені даних", error);
@@ -31,12 +27,12 @@ const MedicalHistory = () => {
     fetchData();
   }, []);
 
-  if (!patientData || !history) {
+  if (!history) {
     return <Loader text="Завантаження історій хвороб..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="history-page">
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate("/patient")}>
           Назад
@@ -91,8 +87,8 @@ const MedicalHistory = () => {
                       <strong>
                         {item.date_departure
                           ? new Date(item.date_departure).toLocaleDateString(
-                            "uk-UA",
-                          )
+                              "uk-UA",
+                            )
                           : "Не вказано"}
                       </strong>
                     </div>
@@ -117,7 +113,7 @@ const MedicalHistory = () => {
           })}
         </div>
       )}
-    </PatientLayout>
+    </main>
   );
 };
 

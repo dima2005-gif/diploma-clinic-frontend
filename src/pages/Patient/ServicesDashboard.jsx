@@ -5,23 +5,18 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./ServicesDashboard.css";
 
 const DirectoryOfServices = () => {
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
   const [services, setServices] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const servicesResponse = await api.get("/patient/services/");
-
-        setPatientData(patientResponse.data);
         setServices(servicesResponse.data);
       } catch (error) {
         console.error("Помилка при завантажені послуг", error);
@@ -31,12 +26,12 @@ const DirectoryOfServices = () => {
     fetchData();
   }, []);
 
-  if (!patientData || !services) {
+  if (!services) {
     return <Loader text="Завантаження послуг..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="patient-services-page">
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate("/patient")}>
           Назад
@@ -75,7 +70,7 @@ const DirectoryOfServices = () => {
           ))}
         </div>
       )}
-    </PatientLayout>
+    </main>
   );
 };
 

@@ -1,0 +1,244 @@
+.analysis-detail-topbar {
+  margin-bottom: 24px;
+}
+
+.analysis-detail-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 44px 52px;
+  margin-bottom: 32px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.analysis-detail-hero h1 {
+  margin: 0 0 12px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.analysis-detail-hero p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.analysis-detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+
+.analysis-info-card,
+.analysis-result-card {
+  min-height: 330px;
+}
+
+.analysis-info-card h3,
+.analysis-result-card h3 {
+  margin: 0 0 22px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.analysis-info-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.analysis-info-list div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analysis-info-list span,
+.result-state span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.analysis-info-list strong {
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* RESULT CARD */
+
+.analysis-result-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.analysis-result-card h3 {
+  text-align: left;
+}
+
+.analysis-result-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+}
+
+.result-state {
+  width: 100%;
+  border-left: 4px solid var(--color-border);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-state strong {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.result-state p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.result-state.success {
+  border-left-color: var(--color-green);
+}
+
+.result-state.warning {
+  border-left-color: var(--color-yellow);
+}
+
+.result-state.danger {
+  border-left-color: var(--color-red);
+}
+
+.analysis-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analysis-result-actions .btn,
+.analysis-result-content > .btn {
+  width: 100%;
+}
+
+/* RESULT FORM */
+
+.result-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.result-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-form-group label {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.result-form-group input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.selected-file {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.result-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* MODAL */
+
+.delete-result-modal h2 {
+  margin: 0 0 12px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.delete-result-modal p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.analysis-detail-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+@media (max-width: 900px) {
+  .analysis-detail-page {
+    padding: 24px;
+  }
+}
+@media (max-width: 1000px) {
+  .analysis-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-detail-hero {
+    padding: 32px 24px;
+    flex-direction: column;
+  }
+
+  .analysis-detail-hero h1 {
+    font-size: 34px;
+  }
+
+  .analysis-info-list {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-result-actions,
+  .result-form-actions,
+  .modal-actions {
+    justify-content: stretch;
+  }
+
+  .analysis-result-actions .btn,
+  .result-form-actions .btn,
+  .modal-actions .btn {
+    width: 100%;
+  }
+}

@@ -132,7 +132,17 @@
   margin: 0;
   color: var(--color-text-muted);
 }
+.visit-update-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
 
+@media (max-width: 900px) {
+  .visit-update-page {
+    padding: 24px;
+  }
+}
 @media (max-width: 1100px) {
   .visit-form-grid {
     grid-template-columns: 1fr;

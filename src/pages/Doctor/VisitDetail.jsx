@@ -6,15 +6,13 @@ import DiagnosisTab from "../../components/doctor/diagnosis/DiagnosisTab";
 import MedicinesTab from "../../components/doctor/medicines/MedicinesTab";
 import AnalysisTab from "../../components/doctor/analysis/AnalysisTab";
 
-import api, { logoutUser } from "../../api/axios";
+import api from "../../api/axios";
 
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
 import Modal from "../../components/UI/Modal";
-
-import DoctorLayout from "../../components/layouts/DoctorLayout";
 
 import "./VisitDetail.css";
 
@@ -28,18 +26,13 @@ const DoctorVisitDetail = () => {
   const [activeTab, setActiveTab] = useState("diagnosis");
 
   const [closeModal, setCloseModal] = useState(false);
-  const [stats, setStats] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
 
   const fetchVisit = async () => {
     try {
-      const [visitResponse, statsResponse] = await Promise.all([
-        api.get(`/doctor/visit/${id}/`),
-        api.get("/doctor/"),
-      ]);
+      const response = await api.get(`/doctor/visit/${id}/`);
 
-      setVisit(visitResponse.data);
-      setStats(statsResponse.data);
+      setVisit(response.data);
     } catch (error) {
       console.error("Помилка при завантажені", error);
       toast.error("Не вдалося завантажити прийом");
@@ -69,19 +62,14 @@ const DoctorVisitDetail = () => {
     }
   };
 
-  if (!visit || !stats) {
+  if (!visit) {
     return <Loader text="Завантаження прийому..." />;
   }
 
   const isHistoryClosed = !!visit.history?.date_departure;
 
   return (
-    <DoctorLayout
-      doctorName={stats.name}
-      position={stats.position}
-      stats={stats}
-      onLogout={logoutUser}
-    >
+    <main className="visit-detail-page">
       {" "}
       <div className="visit-detail-topbar">
         <Button variant="outline" onClick={() => navigate("/doctor/visit/")}>
@@ -255,7 +243,7 @@ const DoctorVisitDetail = () => {
           </div>
         </div>
       </Modal>
-    </DoctorLayout>
+    </main>
   );
 };
 

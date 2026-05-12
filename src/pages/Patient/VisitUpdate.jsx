@@ -7,7 +7,6 @@ import api from "../../api/axios";
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./VisitUpdate.css";
 
@@ -15,7 +14,6 @@ const UpdateVisit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
   const [services, setServices] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [slots, setSlots] = useState([]);
@@ -32,13 +30,11 @@ const UpdateVisit = () => {
   useEffect(() => {
     const fetchVisit = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const visitResponse = await api.get(`/patient/visit/${id}/update/`);
         const servicesResponse = await api.get("/patient/services/");
 
         const visit = visitResponse.data;
 
-        setPatientData(patientResponse.data);
         setServices(servicesResponse.data || []);
 
         if (visit.status !== "Заплановано") {
@@ -166,18 +162,18 @@ const UpdateVisit = () => {
     }
   };
 
-  if (loading || !patientData) {
+  if (loading) {
     return <Loader text="Завантаження візиту..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="visit-update-page">
+      {" "}
       <div className="visit-update-topbar">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Назад
         </Button>
       </div>
-
       {isLocked ? (
         <Card className="visit-locked-card">
           <h1>Редагування недоступне</h1>
@@ -281,7 +277,7 @@ const UpdateVisit = () => {
           </Card>
         </>
       )}
-    </PatientLayout>
+    </main>
   );
 };
 

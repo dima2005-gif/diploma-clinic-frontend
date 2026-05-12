@@ -7,7 +7,7 @@ import api from "../../api/axios";
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
+
 import RatingStars from "../../components/UI/RatingStars";
 
 import "./Responses.css";
@@ -15,7 +15,6 @@ import "./Responses.css";
 const PatientResponses = () => {
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
   const [availableVisits, setAvailableVisits] = useState([]);
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,11 +33,9 @@ const PatientResponses = () => {
 
   const fetchData = async () => {
     try {
-      const patientResponse = await api.get("/patient/");
       const availableResponse = await api.get("/patient/response/available/");
       const responsesResponse = await api.get("/patient/responses/");
 
-      setPatientData(patientResponse.data);
       setAvailableVisits(availableResponse.data || []);
       setResponses(responsesResponse.data || []);
     } catch (error) {
@@ -124,7 +121,7 @@ const PatientResponses = () => {
     }
   };
 
-  if (loading || !patientData) {
+  if (loading) {
     return <Loader text="Завантаження відгуків..." />;
   }
 
@@ -133,7 +130,7 @@ const PatientResponses = () => {
   );
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="responses-page">
       <div className="responses-topbar">
         <Button variant="outline" onClick={() => navigate("/patient/")}>
           Назад
@@ -334,7 +331,7 @@ const PatientResponses = () => {
           </div>
         )}
       </section>
-    </PatientLayout>
+    </main>
   );
 };
 

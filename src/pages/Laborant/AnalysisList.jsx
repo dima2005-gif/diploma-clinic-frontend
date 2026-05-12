@@ -1,250 +1,299 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+import Badge from "../../components/UI/Badge";
+import Modal from "../../components/UI/Modal";
+
+import "./AnalysisList.css";
 
 const LaborantAnalysisList = () => {
   const navigate = useNavigate();
 
   const [analyses, setAnalyses] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [modal, setModal] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("planned");
 
   useEffect(() => {
-    const fetchAnalyses = async () => {
+    const fetchData = async () => {
       try {
         const response = await api.get("/laborant/analysis/");
-        setAnalyses(response.data);
+
+        setAnalyses(response.data || []);
       } catch (error) {
         console.error("Помилка при завантаженні аналізів", error);
+        toast.error("Не вдалося завантажити аналізи");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAnalyses();
+    fetchData();
   }, []);
 
   const handleStatusChange = async () => {
     if (!modal) return;
 
     try {
+      setIsUpdating(true);
+
       await api.patch(`/laborant/analysis/${modal.id}/confirm/`, {
         action: modal.action,
       });
 
+      const newStatus =
+        modal.action === "confirm" ? "Підтверджено" : "Відмовлено";
+
       setAnalyses((prev) =>
         prev.map((item) =>
-          item.id === modal.id
-            ? {
-              ...item,
-              status:
-                modal.action === "confirm" ? "Підтверджено" : "Відмовлено",
-            }
-            : item,
+          item.id === modal.id ? { ...item, status: newStatus } : item,
         ),
+      );
+
+      toast.success(
+        modal.action === "confirm" ? "Аналіз підтверджено" : "Аналіз відхилено",
       );
 
       setModal(null);
     } catch (error) {
       const message =
         error.response?.data?.error || "Помилка при зміні статусу аналізу";
+
       console.error("Помилка при зміні статусу аналізу", error);
-      alert(message);
+      toast.error(message);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  if (loading) return <div>Завантаження...</div>;
+  if (loading) {
+    return <Loader text="Завантаження аналізів..." />;
+  }
 
-  const plannedAnalyses = analyses.filter(
-    (item) => item.status === "Заплановано",
-  );
-  const confirmedAnalyses = analyses.filter(
-    (item) => item.status === "Підтверджено",
-  );
-  const archivedAnalyses = analyses.filter(
-    (item) => item.status === "Відмовлено",
-  );
+  const analysisGroups = {
+    planned: {
+      title: "Заплановані",
+      description: "Аналізи, які очікують виконання або підтвердження.",
+      items: analyses.filter((item) => item.status === "Заплановано"),
+    },
 
-  return (
-    <div>
-      <h2>Список аналізів пацієнтів</h2>
+    withoutResult: {
+      title: "Без результату",
+      description: "Підтверджені аналізи без завантаженого результату.",
+      items: analyses.filter(
+        (item) => item.status === "Підтверджено" && !item.result_url,
+      ),
+    },
 
-      {modal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "24px",
-              borderRadius: "8px",
-              minWidth: "300px",
-            }}
-          >
-            <h3>Підтвердження дії</h3>
+    withResult: {
+      title: "Є результат",
+      description: "Аналізи із завантаженим результатом дослідження.",
+      items: analyses.filter((item) => item.result_url),
+    },
 
-            <p>
-              {modal.action === "confirm"
-                ? "Ви впевнені, що хочете підтвердити цей аналіз?"
-                : "Ви впевнені, що хочете відхилити цей аналіз?"}
-            </p>
+    rejected: {
+      title: "Відмовлені",
+      description: "Скасовані або відхилені аналізи.",
+      items: analyses.filter((item) => item.status === "Відмовлено"),
+    },
+  };
 
-            <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-              <button onClick={handleStatusChange}>
-                {modal.action === "confirm" ? "Підтвердити" : "Відхилити"}
-              </button>
+  const currentGroup = analysisGroups[activeFilter];
 
-              <button onClick={() => setModal(null)}>Скасувати</button>
-            </div>
+  const renderAnalysisCard = (item) => (
+    <Card key={item.id} className="laborant-analysis-card">
+      <div>
+        <div className="laborant-analysis-header">
+          <h3>{item.analysis.name}</h3>
+          <Badge status={item.status} />
+        </div>
+
+        <div className="laborant-analysis-meta">
+          <div>
+            <span>Пацієнт</span>
+            <strong>{item.patient.full_name}</strong>
           </div>
+
+          <div>
+            <span>Лікар</span>
+            <strong>{item.doctor.full_name}</strong>
+          </div>
+
+          <div>
+            <span>Дата</span>
+            <strong>
+              {new Date(item.date_prescribed).toLocaleString("uk-UA")}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {item.status === "Заплановано" && (
+        <div className="laborant-analysis-actions">
+          <Button
+            variant="primary"
+            onClick={() => setModal({ id: item.id, action: "confirm", item })}
+          >
+            Підтвердити
+          </Button>
+
+          <Button
+            variant="danger"
+            onClick={() => setModal({ id: item.id, action: "reject", item })}
+          >
+            Відхилити
+          </Button>
         </div>
       )}
 
-      <h3>Заплановані</h3>
+      {item.status === "Підтверджено" && (
+        <div className="laborant-analysis-actions">
+          {item.result_url && (
+            <Button
+              variant="outline"
+              onClick={() => window.open(item.result_url, "_blank")}
+            >
+              Переглянути результат
+            </Button>
+          )}
 
-      {plannedAnalyses.length === 0 ? (
-        <p>Немає запланованих аналізів</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Пацієнт</th>
-              <th>Лікар</th>
-              <th>Аналіз</th>
-              <th>Дата</th>
-              <th>Статус</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {plannedAnalyses.map((item) => (
-              <tr key={item.id}>
-                <td>{item.patient.full_name}</td>
-                <td>{item.doctor.full_name}</td>
-                <td>{item.analysis.name}</td>
-                <td>
-                  {new Date(item.date_prescribed).toLocaleString("uk-UA")}
-                </td>
-                <td>{item.status}</td>
-                <td>
-                  <button
-                    onClick={() => setModal({ id: item.id, action: "confirm" })}
-                  >
-                    Підтвердити
-                  </button>
-
-                  <button
-                    onClick={() => setModal({ id: item.id, action: "reject" })}
-                  >
-                    Відхилити
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <Button
+            variant="info"
+            onClick={() => navigate(`/laborant/analyses/${item.id}`)}
+          >
+            Відкрити
+          </Button>
+        </div>
       )}
+    </Card>
+  );
 
-      <h3>Підтверджені</h3>
+  return (
+    <main className="laborant-analyses-page">
+      <div className="laborant-analyses-topbar">
+        <Button variant="outline" onClick={() => navigate("/laborant/")}>
+          Назад
+        </Button>
+      </div>
 
-      {confirmedAnalyses.length === 0 ? (
-        <p>Немає підтверджених аналізів</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Пацієнт</th>
-              <th>Лікар</th>
-              <th>Аналіз</th>
-              <th>Дата</th>
-              <th>Статус</th>
-              <th>Результат</th>
-              <th></th>
-            </tr>
-          </thead>
+      <section className="laborant-analyses-hero">
+        <h1>Аналізи пацієнтів</h1>
+        <p>
+          Переглядайте призначені аналізи, підтверджуйте виконання та працюйте з
+          результатами лабораторних досліджень.
+        </p>
+      </section>
 
-          <tbody>
-            {confirmedAnalyses.map((item) => (
-              <tr key={item.id}>
-                <td>{item.patient.full_name}</td>
-                <td>{item.doctor.full_name}</td>
-                <td>{item.analysis.name}</td>
-                <td>
-                  {new Date(item.date_prescribed).toLocaleString("uk-UA")}
-                </td>
-                <td>{item.status}</td>
-                <td>
-                  {item.result_url ? (
-                    <a
-                      href={item.result_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Переглянути
-                    </a>
-                  ) : (
-                    "Немає"
-                  )}
-                </td>
-                <td>
-                  <button
-                    onClick={() => navigate(`/laborant/analyses/${item.id}`)}
-                  >
-                    Відкрити
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="laborant-filter-chips">
+        <button
+          className={
+            activeFilter === "planned" ? "filter-chip active" : "filter-chip"
+          }
+          onClick={() => setActiveFilter("planned")}
+        >
+          Заплановані
+        </button>
+        <button
+          className={
+            activeFilter === "withoutResult"
+              ? "filter-chip active"
+              : "filter-chip"
+          }
+          onClick={() => setActiveFilter("withoutResult")}
+        >
+          Без результату
+        </button>
+        <button
+          className={
+            activeFilter === "withResult" ? "filter-chip active" : "filter-chip"
+          }
+          onClick={() => setActiveFilter("withResult")}
+        >
+          Є результат
+        </button>
+        <button
+          className={
+            activeFilter === "rejected" ? "filter-chip active" : "filter-chip"
+          }
+          onClick={() => setActiveFilter("rejected")}
+        >
+          Відмовлені
+        </button>{" "}
+      </div>
 
-      {archivedAnalyses.length > 0 && (
-        <>
-          <h3>Архів</h3>
+      <section className="laborant-analyses-section">
+        <div className="section-heading">
+          <h2>{currentGroup.title}</h2>
+          <p>{currentGroup.description}</p>
+        </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Пацієнт</th>
-                <th>Лікар</th>
-                <th>Аналіз</th>
-                <th>Дата</th>
-                <th>Статус</th>
-              </tr>
-            </thead>
+        {currentGroup.items.length === 0 ? (
+          <Card>
+            <p className="empty-text">Аналізів не знайдено.</p>
+          </Card>
+        ) : (
+          <div className="laborant-analyses-grid">
+            {currentGroup.items.map(renderAnalysisCard)}
+          </div>
+        )}
+      </section>
 
-            <tbody>
-              {archivedAnalyses.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.patient.full_name}</td>
-                  <td>{item.doctor.full_name}</td>
-                  <td>{item.analysis.name}</td>
-                  <td>
-                    {new Date(item.date_prescribed).toLocaleString("uk-UA")}
-                  </td>
-                  <td>{item.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
+      <Modal isOpen={!!modal} onClose={() => setModal(null)}>
+        <div className="analysis-confirm-modal">
+          <h2>
+            {modal?.action === "confirm"
+              ? "Підтвердити аналіз?"
+              : "Відхилити аналіз?"}
+          </h2>
 
-      <button onClick={() => navigate("/laborant/")}>Назад</button>
-    </div>
+          <p>
+            {modal?.action === "confirm"
+              ? "Ви дійсно хочете підтвердити виконання цього аналізу?"
+              : "Ви дійсно хочете відхилити цей аналіз?"}
+          </p>
+
+          {modal?.item && (
+            <div className="modal-analysis-info">
+              <span>Пацієнт</span>
+              <strong>{modal.item.patient.full_name}</strong>
+
+              <span>Аналіз</span>
+              <strong>{modal.item.analysis.name}</strong>
+            </div>
+          )}
+
+          <div className="modal-actions">
+            <Button
+              variant="outline"
+              onClick={() => setModal(null)}
+              disabled={isUpdating}
+            >
+              Скасувати
+            </Button>
+
+            <Button
+              variant={modal?.action === "confirm" ? "primary" : "danger"}
+              onClick={handleStatusChange}
+              disabled={isUpdating}
+            >
+              {isUpdating
+                ? "Збереження..."
+                : modal?.action === "confirm"
+                  ? "Підтвердити"
+                  : "Відхилити"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </main>
   );
 };
 

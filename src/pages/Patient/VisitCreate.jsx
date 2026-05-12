@@ -7,14 +7,14 @@ import api from "../../api/axios";
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
+
 
 import "./VisitCreate.css";
 
 const CreateVisit = () => {
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
+
 
   const [services, setServices] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -31,10 +31,9 @@ const CreateVisit = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const servicesResponse = await api.get("/patient/services/");
 
-        setPatientData(patientResponse.data);
+
         setServices(servicesResponse.data || []);
       } catch (error) {
         console.error("Помилка при завантаженні даних", error);
@@ -140,13 +139,12 @@ const CreateVisit = () => {
     }
   };
 
-  if (loading || !patientData) {
+  if (loading ) {
     return <Loader text="Завантаження..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
-      <div className="visit-create-topbar">
+    <main className="visit-create-page">      <div className="visit-create-topbar">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Назад
         </Button>
@@ -244,7 +242,7 @@ const CreateVisit = () => {
           </Button>
         </div>
       </Card>
-    </PatientLayout>
+    </main>
   );
 };
 

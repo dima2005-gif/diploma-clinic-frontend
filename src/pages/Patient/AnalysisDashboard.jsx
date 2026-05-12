@@ -6,22 +6,18 @@ import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./AnalysisDashboard.css";
 
 const AnalysisList = () => {
-  const [patientData, setPatientData] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const analysisResponse = await api.get("/patient/analysis/");
 
-        setPatientData(patientResponse.data);
         setAnalysis(analysisResponse.data);
       } catch (error) {
         console.error("Помилка при завантаженні аналізів", error);
@@ -31,12 +27,12 @@ const AnalysisList = () => {
     fetchData();
   }, []);
 
-  if (!patientData || !analysis) {
+  if (!analysis) {
     return <Loader text="Завантаження аналізів..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="analysis-page">
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate("/patient")}>
           Назад
@@ -94,7 +90,7 @@ const AnalysisList = () => {
           ))}
         </div>
       )}
-    </PatientLayout>
+    </main>
   );
 };
 

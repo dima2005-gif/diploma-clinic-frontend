@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import api from "../../api/axios";
 
 import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./ServiceDetail.css";
 
@@ -13,19 +13,15 @@ const ServiceDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [patientData, setPatientData] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [serviceInfo, setServiceInfo] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const serviceResponse = await api.get(`/patient/services/${id}`);
 
         const services = serviceResponse.data || [];
-
-        setPatientData(patientResponse.data);
 
         if (services.length > 0) {
           setServiceInfo(services[0].service);
@@ -41,12 +37,12 @@ const ServiceDetail = () => {
     fetchDetail();
   }, [id]);
 
-  if (!patientData || !serviceInfo) {
+  if (!serviceInfo) {
     return <Loader text="Завантаження детальної інформації..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="patient-service-detail-page">
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Назад
@@ -116,7 +112,7 @@ const ServiceDetail = () => {
           </div>
         )}
       </section>
-    </PatientLayout>
+    </main>
   );
 };
 

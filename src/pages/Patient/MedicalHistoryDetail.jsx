@@ -6,7 +6,6 @@ import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./MedicalHistoryDetail.css";
 
@@ -14,16 +13,13 @@ const MedicalHistoryDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [patientData, setPatientData] = useState(null);
   const [historyDetail, setHistoryDetail] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const historyResponse = await api.get(`/patient/medical-history/${id}`);
 
-        setPatientData(patientResponse.data);
         setHistoryDetail(historyResponse.data);
       } catch (error) {
         console.error("Помилка при завантажені даних", error);
@@ -33,20 +29,20 @@ const MedicalHistoryDetail = () => {
     fetchDetail();
   }, [id]);
 
-  if (!patientData || !historyDetail) {
+  if (!historyDetail) {
     return <Loader text="Завантажується історія, зачекайте..." />;
   }
 
   const isClosed = Boolean(historyDetail.date_departure);
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="history-detail-page">
+      {" "}
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Назад
         </Button>
       </div>
-
       <Card className="history-detail-card">
         <div className="history-detail-header">
           <div>
@@ -59,8 +55,8 @@ const MedicalHistoryDetail = () => {
               —{" "}
               {historyDetail.date_departure
                 ? new Date(historyDetail.date_departure).toLocaleDateString(
-                  "uk-UA",
-                )
+                    "uk-UA",
+                  )
                 : "дотепер"}
             </p>
           </div>
@@ -100,8 +96,8 @@ const MedicalHistoryDetail = () => {
             <strong>
               {historyDetail.date_departure
                 ? new Date(historyDetail.date_departure).toLocaleDateString(
-                  "uk-UA",
-                )
+                    "uk-UA",
+                  )
                 : "Не вказано"}
             </strong>
           </div>
@@ -112,7 +108,6 @@ const MedicalHistoryDetail = () => {
           <p>{historyDetail.conclusion || "Висновок ще не вказано."}</p>
         </div>
       </Card>
-
       <section className="history-detail-section">
         <div className="section-heading">
           <h2>Призначені аналізи</h2>
@@ -170,7 +165,6 @@ const MedicalHistoryDetail = () => {
           </div>
         )}
       </section>
-
       <section className="history-detail-section">
         <div className="section-heading">
           <h2>Призначені ліки</h2>
@@ -196,7 +190,7 @@ const MedicalHistoryDetail = () => {
           </div>
         )}
       </section>
-    </PatientLayout>
+    </main>
   );
 };
 

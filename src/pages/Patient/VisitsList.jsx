@@ -7,7 +7,7 @@ import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
-import PatientLayout from "../../components/layouts/PatientLayout";
+
 import Modal from "../../components/UI/Modal";
 
 import "./VisitsList.css";
@@ -15,7 +15,7 @@ import "./VisitsList.css";
 const VisitsList = () => {
   const navigate = useNavigate();
 
-  const [patientData, setPatientData] = useState(null);
+
   const [visits, setVisits] = useState(null);
 const [visitToCancel, setVisitToCancel] = useState(null);
 const [isCancelling, setIsCancelling] = useState(false);
@@ -23,10 +23,9 @@ const [isCancelling, setIsCancelling] = useState(false);
   useEffect(() => {
     const fetchVisit = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const visitsResponse = await api.get("/patient/visit/");
 
-        setPatientData(patientResponse.data);
+
         setVisits(visitsResponse.data);
       } catch (error) {
         console.error("Помилка при завантажені даних", error);
@@ -60,13 +59,12 @@ const handleCancelVisit = async () => {
     setIsCancelling(false);
   }
 };
-  if (!patientData || !visits) {
+  if (!visits) {
     return <Loader text="Завантажується список візитів..." />;
   }
 
   return (
-    <PatientLayout patientData={patientData}>
-      <div className="visits-topbar">
+   <main className="visits-page">      <div className="visits-topbar">
         <Button variant="outline" onClick={() => navigate("/patient")}>
           Назад
         </Button>
@@ -161,7 +159,7 @@ const handleCancelVisit = async () => {
     </Button>
   </div>
 </Modal>
-    </PatientLayout>
+    </main>
   );
 };
 

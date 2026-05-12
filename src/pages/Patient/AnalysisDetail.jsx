@@ -6,7 +6,6 @@ import Button from "../../components/UI/Button";
 import Card from "../../components/UI/Card";
 import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
-import PatientLayout from "../../components/layouts/PatientLayout";
 
 import "./AnalysisDetail.css";
 
@@ -14,16 +13,13 @@ const AnalysisDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [patientData, setPatientData] = useState(null);
   const [data, setData] = useState(null);
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const patientResponse = await api.get("/patient/");
         const analysisResponse = await api.get(`/patient/analysis/${id}/`);
 
-        setPatientData(patientResponse.data);
         setData(analysisResponse.data);
       } catch (error) {
         console.error("Помилка при завантажені даних", error);
@@ -33,7 +29,7 @@ const AnalysisDetail = () => {
     fetchDetail();
   }, [id]);
 
-  if (!patientData || !data) {
+  if (!data) {
     return <Loader text="Завантаження детальної інформації..." />;
   }
 
@@ -42,13 +38,13 @@ const AnalysisDetail = () => {
   const isPlanned = data.status === "Заплановано";
 
   return (
-    <PatientLayout patientData={patientData}>
+    <main className="analysis-detail-page">
+      {" "}
       <div className="detail-topbar">
         <Button variant="outline" onClick={() => navigate(-1)}>
           Назад
         </Button>
       </div>
-
       <Card className="analysis-detail-card">
         <div className="analysis-detail-header">
           <div>
@@ -89,7 +85,6 @@ const AnalysisDetail = () => {
           </div>
         </div>
       </Card>
-
       {isConfirmed && data.result && (
         <Card className="analysis-result-card success">
           <div>
@@ -107,7 +102,6 @@ const AnalysisDetail = () => {
           </Button>
         </Card>
       )}
-
       {isConfirmed && !data.result && (
         <Card className="analysis-result-card warning">
           <div>
@@ -118,7 +112,6 @@ const AnalysisDetail = () => {
           </div>
         </Card>
       )}
-
       {isPlanned && (
         <Card className="analysis-result-card warning">
           <div>
@@ -130,7 +123,6 @@ const AnalysisDetail = () => {
           </div>
         </Card>
       )}
-
       {isRejected && (
         <Card className="analysis-result-card danger">
           <div>
@@ -139,7 +131,7 @@ const AnalysisDetail = () => {
           </div>
         </Card>
       )}
-    </PatientLayout>
+    </main>
   );
 };
 
