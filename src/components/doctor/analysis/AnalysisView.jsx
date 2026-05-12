@@ -46,8 +46,7 @@ const AnalysisView = ({ analyses, isReadOnly, onAdd, onEdit, onCancel }) => {
             </div>
 
             <div>
-              <span>Результат</span>
-
+              {!item.result && <span>Результат</span>}
               {item.status === "Відмовлено" ? (
                 <p>Аналіз було скасовано.</p>
               ) : item.result ? (
