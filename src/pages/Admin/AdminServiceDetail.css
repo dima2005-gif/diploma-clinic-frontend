@@ -1,0 +1,161 @@
+.admin-service-detail-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.admin-service-detail-topbar {
+  margin-bottom: 24px;
+}
+
+.admin-service-detail-hero {
+  margin-bottom: 32px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.service-detail-label {
+  margin: 0 0 12px;
+  color: var(--color-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-service-detail-hero h1 {
+  margin: 0 0 12px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.service-detail-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 16px;
+}
+
+.service-inline-price {
+  margin-top: 28px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-inline-price span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.service-inline-price strong {
+  color: var(--color-green);
+  font-size: 32px;
+  font-weight: 700;
+}
+.admin-service-detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.admin-service-info-card {
+  min-height: 210px;
+}
+
+.admin-service-info-card h3 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.admin-service-info-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.service-tags span {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: rgba(118, 167, 233, 0.16);
+  color: var(--color-blue);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-service-doctors-section {
+  margin-bottom: 32px;
+}
+
+.section-heading {
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.section-heading p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.admin-service-doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.admin-service-doctor-card {
+  min-height: 140px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-service-doctor-card h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.admin-service-doctor-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-service-doctor-card span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.admin-service-doctor-card strong {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin-service-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}

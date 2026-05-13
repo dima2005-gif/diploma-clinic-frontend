@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+
+import "./AdminAnalysisEdit.css";
 
 const AdminAnalysisEdit = () => {
   const { id } = useParams();
@@ -8,6 +16,8 @@ const AdminAnalysisEdit = () => {
 
   const [form, setForm] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -17,10 +27,13 @@ const AdminAnalysisEdit = () => {
         setForm({
           name: response.data.name || "",
           description: response.data.description || "",
-          price: response.data.price || "",
+          price: response.data.price ? Number(response.data.price) : "",
         });
       } catch (error) {
         console.error("Помилка при завантаженні аналізу", error);
+        toast.error("Не вдалося завантажити аналіз");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -28,23 +41,35 @@ const AdminAnalysisEdit = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
 
-    setErrors({
-      ...errors,
+    setErrors((prev) => ({
+      ...prev,
       [e.target.name]: null,
-    });
+    }));
+  };
+
+  const getError = (field) => {
+    const error = errors[field];
+
+    if (Array.isArray(error)) return error[0];
+
+    return error;
   };
 
   const handleSubmit = async () => {
     try {
+      setIsSaving(true);
+
       await api.patch(`/admin/analysis/${id}/update/`, {
         ...form,
         price: Number(form.price),
       });
+
+      toast.success("Аналіз оновлено");
 
       navigate(`/administrator/analyses/${id}/`);
     } catch (error) {
@@ -52,50 +77,97 @@ const AdminAnalysisEdit = () => {
 
       if (error.response?.data) {
         setErrors(error.response.data);
+        toast.error("Перевірте правильність заповнення полів");
       } else {
-        alert("Помилка при оновленні аналізу");
+        toast.error("Помилка при оновленні аналізу");
       }
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  if (!form) return <div>Завантаження...</div>;
+  if (loading || !form) {
+    return <Loader text="Завантаження аналізу..." />;
+  }
 
   return (
-    <div>
-      <h2>Редагувати аналіз</h2>
-
-      <div>
-        <label>Назва</label>
-        <input name="name" value={form.name} onChange={handleChange} />
-        {errors.name && <p>{errors.name}</p>}
+    <main className="admin-analysis-edit-page">
+      <div className="admin-analysis-edit-topbar">
+        <Button
+          variant="outline"
+          onClick={() => navigate(`/administrator/analyses/${id}/`)}
+        >
+          Назад
+        </Button>
       </div>
 
-      <div>
-        <label>Опис</label>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-        />
-        {errors.description && <p>{errors.description}</p>}
-      </div>
+      <section className="admin-analysis-edit-hero">
+        <h1>Редагувати аналіз</h1>
 
-      <div>
-        <label>Вартість</label>
-        <input
-          type="number"
-          name="price"
-          value={form.price}
-          onChange={handleChange}
-        />
-        {errors.price && <p>{errors.price}</p>}
-      </div>
+        <p>
+          Оновлення назви, опису та вартості лабораторного дослідження.
+        </p>
+      </section>
 
-      <button onClick={handleSubmit}>Зберегти</button>
-      <button onClick={() => navigate(`/administrator/analyses/${id}/`)}>
-        Скасувати
-      </button>
-    </div>
+      <Card className="admin-analysis-edit-card">
+        <div className="form-section">
+          <div className="form-section-heading">
+            <h2>Основна інформація</h2>
+            <p>Назва, опис та вартість лабораторного аналізу.</p>
+          </div>
+
+          <div className="admin-analysis-form-grid">
+            <div className="form-group">
+              <label>Назва</label>
+              <input name="name" value={form.name} onChange={handleChange} />
+              {getError("name") && (
+                <p className="field-error">{getError("name")}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Вартість</label>
+              <input
+                type="number"
+                name="price"
+                min="0"
+                step="1"
+                value={form.price}
+                onChange={handleChange}
+              />
+              {getError("price") && (
+                <p className="field-error">{getError("price")}</p>
+              )}
+            </div>
+
+            <div className="form-group full">
+              <label>Опис</label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+              />
+              {getError("description") && (
+                <p className="field-error">{getError("description")}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-analysis-edit-actions">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/administrator/analyses/${id}/`)}
+          >
+            Скасувати
+          </Button>
+
+          <Button variant="info" onClick={handleSubmit} disabled={isSaving}>
+            {isSaving ? "Збереження..." : "Зберегти"}
+          </Button>
+        </div>
+      </Card>
+    </main>
   );
 };
 

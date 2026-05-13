@@ -11,6 +11,7 @@ import "./AnalysisDashboard.css";
 
 const AnalysisList = () => {
   const [analysis, setAnalysis] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +31,10 @@ const AnalysisList = () => {
   if (!analysis) {
     return <Loader text="Завантаження аналізів..." />;
   }
-
+  const filteredAnalysis =
+    selectedStatus === "all"
+      ? analysis
+      : analysis.filter((item) => item.status === selectedStatus);
   return (
     <main className="analysis-page">
       <div className="detail-topbar">
@@ -46,14 +50,42 @@ const AnalysisList = () => {
           результати.
         </p>
       </section>
+      <div className="analysis-filter-tabs">
+        <button
+          className={selectedStatus === "all" ? "active" : ""}
+          onClick={() => setSelectedStatus("all")}
+        >
+          Усі
+        </button>
 
-      {analysis.length === 0 ? (
+        <button
+          className={selectedStatus === "Заплановано" ? "active" : ""}
+          onClick={() => setSelectedStatus("Заплановано")}
+        >
+          Заплановані
+        </button>
+
+        <button
+          className={selectedStatus === "Підтверджено" ? "active" : ""}
+          onClick={() => setSelectedStatus("Підтверджено")}
+        >
+          Підтверджені
+        </button>
+
+        <button
+          className={selectedStatus === "Відмовлено" ? "active" : ""}
+          onClick={() => setSelectedStatus("Відмовлено")}
+        >
+          Відмовлені
+        </button>
+      </div>
+      {filteredAnalysis.length === 0 ? (
         <Card>
           <p className="empty-text">Призначених аналізів немає.</p>
         </Card>
       ) : (
         <div className="analysis-grid">
-          {analysis.map((item) => (
+          {filteredAnalysis.map((item) => (
             <Card key={item.id} className="analysis-card">
               <div>
                 <div className="analysis-card-header">

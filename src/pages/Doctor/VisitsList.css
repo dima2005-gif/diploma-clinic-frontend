@@ -46,7 +46,7 @@
 
 .doctor-visits-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -192,33 +192,4 @@
   min-height: 100vh;
   width: 100%;
   padding: 32px 64px;
-}
-
-@media (max-width: 900px) {
-  .doctor-visits-page {
-    padding: 24px;
-  }
-}
-@media (max-width: 1000px) {
-  .doctor-visits-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .doctor-visits-hero {
-    padding: 32px 24px;
-  }
-
-  .doctor-visits-hero h1 {
-    font-size: 34px;
-  }
-}
-
-@media (max-width: 640px) {
-  .modal-actions {
-    flex-direction: column;
-  }
-
-  .modal-actions .btn {
-    width: 100%;
-  }
 }

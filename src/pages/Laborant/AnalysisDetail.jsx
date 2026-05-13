@@ -12,7 +12,7 @@ import Loader from "../../components/UI/Loader";
 import Badge from "../../components/UI/Badge";
 import Modal from "../../components/UI/Modal";
 
-import "./AnalysisDetail.css";
+import "./LaborantAnalysisDetail.css";
 
 const LaborantAnalysisDetail = () => {
   const { id } = useParams();
@@ -122,7 +122,14 @@ const LaborantAnalysisDetail = () => {
           </div>
         </Card>
 
-        <Card className="analysis-result-card">
+        <Card
+          className={`laborant-analysis-result-card ${analysis.status === "Відмовлено"
+            ? "danger"
+            : analysis.result_url
+              ? "success"
+              : "warning"
+            }`}
+        >
           <h3>Результат</h3>
 
           {isEditingResult ? (
@@ -135,21 +142,19 @@ const LaborantAnalysisDetail = () => {
               }}
             />
           ) : (
-            <div className="analysis-result-content">
+            <div className="laborant-analysis-result-content">
+              <span>Стан результату</span>
+
               {analysis.status === "Відмовлено" ? (
-                <div className="result-state danger">
-                  <span>Стан результату</span>
+                <>
                   <strong>Аналіз було відхилено</strong>
                   <p>Для відхиленого аналізу результат не додається.</p>
-                </div>
+                </>
               ) : analysis.result_url ? (
                 <>
-                  <div className="result-state success">
-                    <span>Стан результату</span>
-                    <strong>Результат завантажено</strong>
-                  </div>
+                  <strong>Результат завантажено</strong>
 
-                  <div className="analysis-result-actions">
+                  <div className="laborant-analysis-result-actions">
                     <Button
                       variant="info"
                       onClick={() => window.open(analysis.result_url, "_blank")}
@@ -159,17 +164,11 @@ const LaborantAnalysisDetail = () => {
 
                     {canEditResult && (
                       <>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsEditingResult(true)}
-                        >
+                        <Button variant="outline" onClick={() => setIsEditingResult(true)}>
                           Оновити результат
                         </Button>
 
-                        <Button
-                          variant="danger"
-                          onClick={() => setDeleteModal(true)}
-                        >
+                        <Button variant="danger" onClick={() => setDeleteModal(true)}>
                           Видалити результат
                         </Button>
                       </>
@@ -178,26 +177,21 @@ const LaborantAnalysisDetail = () => {
                 </>
               ) : (
                 <>
-                  <div className="result-state warning">
-                    <span>Стан результату</span>
-                    <strong>Результат ще не додано</strong>
-                    <p>Завантажте PDF-файл з результатом дослідження.</p>
-                  </div>
+                  <strong>Результат ще не додано</strong>
+                  <p>Завантажте PDF-файл з результатом дослідження.</p>
 
                   {canEditResult && (
-                    <Button
-                      variant="info"
-                      onClick={() => setIsEditingResult(true)}
-                    >
-                      Додати результат
-                    </Button>
+                    <div className="laborant-analysis-result-actions">
+                      <Button variant="info" onClick={() => setIsEditingResult(true)}>
+                        Додати результат
+                      </Button>
+                    </div>
                   )}
                 </>
               )}
             </div>
           )}
-        </Card>
-      </div>
+        </Card>      </div>
 
       <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)}>
         <div className="delete-result-modal">

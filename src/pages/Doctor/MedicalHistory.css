@@ -173,7 +173,7 @@
 .history-medicine-grid,
 .history-analysis-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 20px;
 }
 
@@ -213,28 +213,4 @@
 .empty-text {
   margin: 0;
   color: var(--color-text-muted);
-}
-
-@media (max-width: 900px) {
-  .medical-history-page {
-    padding: 24px;
-  }
-
-  .medical-history-hero {
-    padding: 32px 24px;
-  }
-
-  .medical-history-hero h1 {
-    font-size: 34px;
-  }
-
-  .history-accordion-header {
-    flex-direction: column;
-  }
-
-  .history-info-grid,
-  .history-medicine-grid,
-  .history-analysis-grid {
-    grid-template-columns: 1fr;
-  }
 }

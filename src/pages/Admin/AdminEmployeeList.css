@@ -158,18 +158,41 @@
   margin: 0;
   color: var(--color-text-muted);
 }
+.employee-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 
-@media (max-width: 900px) {
-  .admin-employee-page {
-    padding: 24px;
-  }
+  margin-bottom: 28px;
+}
 
-  .admin-employee-hero {
-    padding: 32px 24px;
-    flex-direction: column;
-  }
+.employee-filter-tabs button {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
 
-  .admin-employee-hero h1 {
-    font-size: 34px;
-  }
+  color: var(--color-text-muted);
+
+  padding: 10px 18px;
+
+  border-radius: 999px;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.employee-filter-tabs button:hover {
+  border-color: var(--color-blue);
+  color: var(--color-text);
+}
+
+.employee-filter-tabs button.active {
+  background: rgba(118, 167, 233, 0.16);
+  border-color: var(--color-blue);
+
+  color: var(--color-blue);
 }

@@ -109,7 +109,7 @@
 .guest-grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -157,66 +157,21 @@
 /* Doctor cards */
 
 .doctor-card {
-  text-align: center;
+  text-align: left;
 }
 
 .doctor-card h3 {
-  text-align: center;
+  text-align: left;
 }
 
 .doctor-card-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: start;
 }
 
 .doctor-position {
   margin: 0 0 12px;
   color: var(--color-text-muted);
-}
-
-/* Responsive */
-
-@media (max-width: 1300px) {
-  .guest-grid {
-    grid-template-columns: repeat(3, minmax(280px, 1fr));
-  }
-}
-
-@media (max-width: 980px) {
-  .guest-page {
-    padding: 24px;
-  }
-
-  .guest-header {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-
-  .guest-header-actions {
-    justify-content: center;
-  }
-
-  .guest-hero h1 {
-    font-size: 36px;
-  }
-
-  .guest-grid {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .guest-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .guest-hero {
-    padding: 32px 24px;
-  }
-
-  .guest-hero h1 {
-    font-size: 30px;
-  }
 }

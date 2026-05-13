@@ -115,25 +115,3 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-
-@media (max-width: 900px) {
-  .admin-employee-create-page {
-    padding: 24px;
-  }
-
-  .admin-employee-create-hero {
-    padding: 32px 24px;
-  }
-
-  .admin-employee-create-hero h1 {
-    font-size: 34px;
-  }
-
-  .admin-employee-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-employee-create-actions .btn {
-    width: 100%;
-  }
-}

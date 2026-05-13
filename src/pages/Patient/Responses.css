@@ -120,7 +120,7 @@
 
 .responses-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -201,31 +201,4 @@
   min-height: 100vh;
   width: 100%;
   padding: 32px 64px;
-}
-
-@media (max-width: 900px) {
-  .responses-page {
-    padding: 24px;
-  }
-}
-@media (max-width: 900px) {
-  .responses-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .responses-hero {
-    padding: 32px 24px;
-  }
-
-  .responses-hero h1 {
-    font-size: 34px;
-  }
-
-  .response-submit-row {
-    justify-content: stretch;
-  }
-
-  .response-submit-row .btn {
-    width: 100%;
-  }
 }

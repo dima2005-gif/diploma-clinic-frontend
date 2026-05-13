@@ -1,0 +1,80 @@
+.admin-analysis-detail-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.admin-analysis-detail-topbar {
+  margin-bottom: 24px;
+}
+
+.admin-analysis-detail-hero {
+  margin-bottom: 32px;
+}
+
+.analysis-detail-label {
+  margin: 0 0 12px;
+  color: var(--color-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-analysis-detail-hero h1 {
+  margin: 0 0 12px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.analysis-detail-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 16px;
+}
+
+.analysis-inline-price {
+  margin-top: 28px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analysis-inline-price span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.analysis-inline-price strong {
+  color: var(--color-green);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.admin-analysis-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.admin-analysis-info-card {
+  min-height: 220px;
+}
+
+.admin-analysis-info-card h3 {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.admin-analysis-info-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.admin-analysis-detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}

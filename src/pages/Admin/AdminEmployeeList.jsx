@@ -16,7 +16,7 @@ const AdminEmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-
+  const [selectedPosition, setSelectedPosition] = useState("all");
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -39,12 +39,16 @@ const AdminEmployeeList = () => {
     const fullName = `${employee.last_name} ${employee.first_name} ${employee.middle_name || ""
       }`.toLowerCase();
 
-    return (
+    const matchesSearch =
       fullName.includes(query) ||
       employee.position?.toLowerCase().includes(query) ||
       employee.phone_number?.includes(query) ||
-      employee.email?.toLowerCase().includes(query)
-    );
+      employee.email?.toLowerCase().includes(query);
+
+    const matchesPosition =
+      selectedPosition === "all" || employee.code === selectedPosition;
+
+    return matchesSearch && matchesPosition;
   });
 
   if (loading) {
@@ -85,8 +89,42 @@ const AdminEmployeeList = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
+      <div className="employee-filter-tabs">
+        <button
+          className={selectedPosition === "all" ? "active" : ""}
+          onClick={() => setSelectedPosition("all")}
+        >
+          Усі
+        </button>
 
-      <section className="admin-employee-section">
+        <button
+          className={selectedPosition === "doctor" ? "active" : ""}
+          onClick={() => setSelectedPosition("doctor")}
+        >
+          Лікарі
+        </button>
+
+        <button
+          className={selectedPosition === "lab" ? "active" : ""}
+          onClick={() => setSelectedPosition("lab")}
+        >
+          Лаборанти
+        </button>
+
+        <button
+          className={selectedPosition === "register" ? "active" : ""}
+          onClick={() => setSelectedPosition("register")}
+        >
+          Реєстратори
+        </button>
+
+        <button
+          className={selectedPosition === "admin" ? "active" : ""}
+          onClick={() => setSelectedPosition("admin")}
+        >
+          Адміністратори
+        </button>
+      </div>      <section className="admin-employee-section">
         <div className="section-heading">
           <h2>Співробітники</h2>
           <p>

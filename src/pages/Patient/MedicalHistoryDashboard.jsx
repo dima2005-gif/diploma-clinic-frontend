@@ -12,7 +12,7 @@ const MedicalHistory = () => {
   const navigate = useNavigate();
 
   const [history, setHistory] = useState(null);
-
+  const [selectedStatus, setSelectedStatus] = useState("all");
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,7 +30,14 @@ const MedicalHistory = () => {
   if (!history) {
     return <Loader text="Завантаження історій хвороб..." />;
   }
-
+  const filteredHistories =
+    selectedStatus === "all"
+      ? history
+      : history.filter((item) =>
+        selectedStatus === "open"
+          ? !item.date_departure
+          : item.date_departure,
+      );
   return (
     <main className="history-page">
       <div className="detail-topbar">
@@ -45,14 +52,35 @@ const MedicalHistory = () => {
           Переглядайте медичні історії, діагнози, послуги та періоди лікування.
         </p>
       </section>
+      <div className="history-filter-tabs">
+        <button
+          className={selectedStatus === "all" ? "active" : ""}
+          onClick={() => setSelectedStatus("all")}
+        >
+          Усі
+        </button>
 
-      {history.length === 0 ? (
+        <button
+          className={selectedStatus === "open" ? "active" : ""}
+          onClick={() => setSelectedStatus("open")}
+        >
+          Відкриті
+        </button>
+
+        <button
+          className={selectedStatus === "closed" ? "active" : ""}
+          onClick={() => setSelectedStatus("closed")}
+        >
+          Закриті
+        </button>
+      </div>
+      {filteredHistories.length === 0 ? (
         <Card>
           <p className="empty-text">Історій хвороб ще немає.</p>
         </Card>
       ) : (
         <div className="history-grid">
-          {history.map((item) => {
+          {filteredHistories.map((item) => {
             const isClosed = Boolean(item.date_departure);
 
             return (
@@ -87,8 +115,8 @@ const MedicalHistory = () => {
                       <strong>
                         {item.date_departure
                           ? new Date(item.date_departure).toLocaleDateString(
-                              "uk-UA",
-                            )
+                            "uk-UA",
+                          )
                           : "Не вказано"}
                       </strong>
                     </div>

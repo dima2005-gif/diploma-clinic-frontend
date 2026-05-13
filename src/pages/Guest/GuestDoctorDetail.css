@@ -73,7 +73,7 @@
 
 .doctor-services-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(5, minmax(220px, 1fr));
   gap: 20px;
 }
 
@@ -129,7 +129,7 @@
 
 .reviews-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -171,53 +171,4 @@
 .empty-text {
   margin: 0;
   color: var(--color-text-muted);
-}
-
-@media (max-width: 1200px) {
-  .doctor-detail-layout {
-    grid-template-columns: 320px 1fr;
-  }
-
-  .doctor-services-grid {
-    grid-template-columns: repeat(2, minmax(220px, 1fr));
-  }
-
-  .reviews-grid {
-    grid-template-columns: repeat(2, minmax(280px, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .guest-detail-page {
-    padding: 24px;
-  }
-
-  .doctor-detail-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .doctor-info-card {
-    position: static;
-    min-height: auto;
-    gap: 28px;
-  }
-
-  .doctor-services-grid,
-  .reviews-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .doctor-info-card h1 {
-    font-size: 30px;
-  }
-
-  .schedule-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .review-header {
-    flex-direction: column;
-  }
 }

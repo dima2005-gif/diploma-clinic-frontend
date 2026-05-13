@@ -187,30 +187,3 @@
 .admin-side-stat.red {
   border-left-color: var(--color-red);
 }
-@media (max-width: 1000px) {
-  .admin-page {
-    padding: 24px;
-  }
-
-  .admin-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-info-card {
-    position: static;
-    min-height: auto;
-    gap: 28px;
-  }
-
-  .admin-actions-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-hero {
-    padding: 32px 24px;
-  }
-
-  .admin-hero h1 {
-    font-size: 34px;
-  }
-}

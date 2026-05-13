@@ -93,7 +93,7 @@
 
 .analysis-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 20px;
 }
 
@@ -153,22 +153,4 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 24px;
-}
-
-@media (max-width: 900px) {
-  .analysis-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .analysis-form-actions,
-  .analysis-actions,
-  .analysis-add-row {
-    justify-content: stretch;
-  }
-
-  .analysis-form-actions .btn,
-  .analysis-actions .btn,
-  .analysis-add-row .btn {
-    width: 100%;
-  }
 }

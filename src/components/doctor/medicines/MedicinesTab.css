@@ -98,7 +98,7 @@
 
 .medicine-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 20px;
 }
 
@@ -144,22 +144,4 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 24px;
-}
-
-@media (max-width: 900px) {
-  .medicine-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .medicine-form-actions,
-  .medicine-actions,
-  .medicine-add-row {
-    justify-content: stretch;
-  }
-
-  .medicine-form-actions .btn,
-  .medicine-actions .btn,
-  .medicine-add-row .btn {
-    width: 100%;
-  }
 }

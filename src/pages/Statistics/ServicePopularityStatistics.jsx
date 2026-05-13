@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
   Chart as ChartJS,
@@ -14,8 +15,15 @@ import {
 import { Bar } from "react-chartjs-2";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import "../../styles/pdf-style.css";
+
 import api from "../../api/axios";
+
+import Button from "../../components/UI/Button";
+import Card from "../../components/UI/Card";
+import Loader from "../../components/UI/Loader";
+
+import "../../styles/pdf-style.css";
+import "./ServicePopularityStatistics.css";
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +36,7 @@ ChartJS.register(
 
 const AdminServicePopularityStatistics = () => {
   const navigate = useNavigate();
+  const reportRef = useRef();
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -38,24 +47,24 @@ const AdminServicePopularityStatistics = () => {
 
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
-  const reportRef = useRef();
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleChange = (e) => {
-    setFilters({
-      ...filters,
+    setFilters((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const fetchStatistics = async () => {
     if (filters.start_date > filters.end_date) {
-      alert("Дата початку не може бути пізніше дати кінця");
+      toast.error("Дата початку не може бути пізніше дати кінця");
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const response = await api.get("/statistics/service-popularity/", {
         params: {
           start_date: filters.start_date,
@@ -70,23 +79,21 @@ const AdminServicePopularityStatistics = () => {
       const message =
         error.response?.data?.error || "Помилка при завантаженні статистики";
 
-      alert(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
-  const chartItems = statistics?.results?.slice(0, 10) || [];
-  const chartData = {
-    labels: chartItems.map((item) => item.service) || [],
 
+  const chartItems = statistics?.results?.slice(0, 10) || [];
+
+  const chartData = {
+    labels: chartItems.map((item) => item.service),
     datasets: [
       {
         label: "Кількість записів",
-
-        data: chartItems.map((item) => item.total_records) || [],
-
+        data: chartItems.map((item) => item.total_records),
         backgroundColor: "#1b5a4f",
-
         borderRadius: 8,
       },
     ],
@@ -94,6 +101,7 @@ const AdminServicePopularityStatistics = () => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
 
     plugins: {
       legend: {
@@ -104,128 +112,205 @@ const AdminServicePopularityStatistics = () => {
     scales: {
       y: {
         beginAtZero: true,
-
         ticks: {
           precision: 0,
         },
       },
     },
   };
+
   const exportToPDF = async () => {
     const element = reportRef.current;
 
-    if (!element) return;
+    if (!element || !statistics) return;
 
-    const canvas = await html2canvas(element, { scale: 2 });
+    try {
+      setIsExporting(true);
 
-    const imageData = canvas.toDataURL("image/png");
+      const canvas = await html2canvas(element, { scale: 2 });
+      const imageData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let heightLeft = imgHeight;
-    let position = 0;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-    pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight);
-
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
       pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight);
 
       heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imageData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = `Статистика_попиту_послуг_за_${statistics.start_date}_${statistics.end_date}.pdf`;
+
+      pdf.save(fileName);
+      toast.success("PDF успішно сформовано");
+    } catch (error) {
+      console.error("Помилка при експорті PDF", error);
+      toast.error("Не вдалося експортувати PDF");
+    } finally {
+      setIsExporting(false);
     }
-    const fileName = `Статистика_попиту_послуг_за_${statistics.start_date}_${statistics.end_date}.pdf`;
-    pdf.save(fileName);
   };
 
+  const hasData = statistics && statistics.results.length > 0;
+
   return (
-    <div className="doctor-visits-statistics-page">
-      <h2>Популярність медичних послуг</h2>
-
-      <div className="statistics-filters">
-        <div>
-          <label>Дата початку</label>
-
-          <input
-            type="date"
-            name="start_date"
-            value={filters.start_date}
-            max={today}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label>Дата кінця</label>
-
-          <input
-            type="date"
-            name="end_date"
-            value={filters.end_date}
-            max={today}
-            onChange={handleChange}
-          />
-        </div>
-
-        <button onClick={fetchStatistics}>Показати</button>
+    <main className="service-popularity-statistics-page">
+      <div className="service-popularity-statistics-topbar">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/administrator/statistics/")}
+        >
+          Назад
+        </Button>
       </div>
 
-      {loading && <p>Завантаження...</p>}
+      <Card className="service-popularity-statistics-hero">
+        <p className="statistics-label">Аналітика</p>
 
-      {!loading && statistics && statistics.results.length > 0 && (
-        <div ref={reportRef} className="pdf-report">
-          <>
-            <h2>Популярність медичних послуг</h2>
-            <p>
-              Період: {statistics.start_date} - {statistics.end_date}
-            </p>
-            <p>Статус записів: {statistics.status_filter}</p>
-            <p>Загальна кількість послуг: {statistics.total_services}</p>
-            <div className="statistics-chart">
-              <Bar data={chartData} options={chartOptions} />
-            </div>
+        <h1>Попит на медичні послуги</h1>
 
-            <table className="statistics-table">
-              <thead>
-                <tr>
-                  <th>Послуга</th>
-                  <th>Кількість записів</th>
-                  <th>Частка попиту</th>
-                </tr>
-              </thead>
+        <p>
+          Перегляд попиту на медичні послуги та кількості записів пацієнтів за
+          вибраний період.
+        </p>
+      </Card>
 
-              <tbody>
-                {statistics.results.map((item) => (
-                  <tr key={item.service_id}>
-                    <td>{item.service}</td>
-
-                    <td>{item.total_records}</td>
-
-                    <td>{item.popularity_percent}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+      <Card className="statistics-filters-card">
+        <div className="section-heading">
+          <h2>Фільтри</h2>
+          <p>Оберіть період для формування статистичного звіту.</p>
         </div>
-      )}
+
+        <div className="statistics-filters-grid">
+          <div className="form-group">
+            <label>Дата початку</label>
+
+            <input
+              type="date"
+              name="start_date"
+              value={filters.start_date}
+              max={today}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Дата кінця</label>
+
+            <input
+              type="date"
+              name="end_date"
+              value={filters.end_date}
+              max={today}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="statistics-filter-action">
+            <Button variant="info" onClick={fetchStatistics} disabled={loading}>
+              {loading ? "Завантаження..." : "Показати"}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {loading && <Loader text="Завантаження статистики..." />}
 
       {!loading && statistics && statistics.results.length === 0 && (
-        <p>Даних за вибраний період не знайдено.</p>
+        <Card>
+          <p className="empty-text">Даних за вибраний період не знайдено.</p>
+        </Card>
       )}
-      <button onClick={exportToPDF}>Експортувати в PDF</button>
-      <button onClick={() => navigate("/administrator/statistics/")}>
-        Назад
-      </button>
-    </div>
+
+      {!loading && hasData && (
+        <>
+          <div className="statistics-report-actions">
+            <Button variant="info" onClick={exportToPDF} disabled={isExporting}>
+              {isExporting ? "Експорт..." : "Експортувати в PDF"}
+            </Button>
+          </div>
+
+          <div ref={reportRef} className="pdf-report statistics-report">
+            <Card className="statistics-summary-card">
+              <div>
+                <p className="statistics-label">Звіт</p>
+
+                <h2>Попит на медичні послуги</h2>
+
+                <p className="statistics-period">
+                  Період: {statistics.start_date} — {statistics.end_date}
+                </p>
+              </div>
+
+              <div className="statistics-summary-grid green">
+                <div>
+                  <span>Статус записів</span>
+                  <strong>{statistics.status_filter}</strong>
+                </div>
+
+                <div>
+                  <span>Усього послуг</span>
+                  <strong>{statistics.total_services}</strong>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="statistics-chart-card">
+              <div className="section-heading">
+                <h2>Графік попиту</h2>
+                <p>Топ послуг за кількістю записів.</p>
+              </div>
+
+              <div className="statistics-chart">
+                <Bar data={chartData} options={chartOptions} />
+              </div>
+            </Card>
+
+            <Card className="statistics-table-card">
+              <div className="section-heading">
+                <h2>Детальна таблиця</h2>
+                <p>Повна статистика попиту на послуги.</p>
+              </div>
+
+              <div className="statistics-table-wrapper">
+                <table className="statistics-table">
+                  <thead>
+                    <tr>
+                      <th>Послуга</th>
+                      <th>Кількість записів</th>
+                      <th>Частка попиту</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {statistics.results.map((item) => (
+                      <tr key={item.service_id}>
+                        <td>{item.service}</td>
+                        <td>{item.total_records}</td>
+                        <td>{item.popularity_percent}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
+    </main>
   );
 };
 

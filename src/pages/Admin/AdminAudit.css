@@ -1,0 +1,171 @@
+.admin-audit-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 64px;
+}
+
+.admin-audit-topbar {
+  margin-bottom: 24px;
+}
+
+.admin-audit-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 44px 52px;
+  margin-bottom: 32px;
+}
+
+.admin-audit-hero h1 {
+  margin: 0 0 14px;
+  font-size: 42px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.admin-audit-hero p {
+  margin: 0;
+  max-width: 820px;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.admin-audit-filter-card {
+  margin-bottom: 32px;
+}
+
+.admin-audit-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr)) auto;
+  gap: 20px;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 12px 14px;
+  font: inherit;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--color-blue);
+}
+
+.admin-audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-audit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  border-left: 4px solid var(--color-blue);
+}
+
+.audit-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.audit-card-header div,
+.audit-card-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audit-card-header span,
+.audit-card-grid span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.audit-card-header strong,
+.audit-card-grid strong {
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.audit-action-badge {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: rgba(118, 167, 233, 0.16);
+  color: var(--color-blue) !important;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.audit-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+.admin-audit-summary {
+  margin-bottom: 20px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.audit-action-badge.create {
+  background: rgba(27, 90, 79, 0.16) !important;
+  color: var(--color-green) !important;
+}
+
+.audit-action-badge.update {
+  background: rgba(250, 168, 70, 0.16) !important;
+  color: var(--color-yellow) !important;
+}
+
+.audit-action-badge.delete {
+  background: rgba(220, 76, 100, 0.14) !important;
+  color: var(--color-red) !important;
+}
+
+.audit-action-badge.default {
+  background: rgba(118, 167, 233, 0.16) !important;
+  color: var(--color-blue) !important;
+}
+.audit-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.audit-pagination span {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

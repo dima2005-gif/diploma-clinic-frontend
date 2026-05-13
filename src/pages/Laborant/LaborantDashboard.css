@@ -101,18 +101,3 @@
   margin: 0;
   color: var(--color-text-muted);
 }
-
-@media (max-width: 1000px) {
-  .next-analysis-card,
-  .laborant-actions-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .laborant-hero {
-    padding: 32px 24px;
-  }
-
-  .laborant-hero h1 {
-    font-size: 34px;
-  }
-}

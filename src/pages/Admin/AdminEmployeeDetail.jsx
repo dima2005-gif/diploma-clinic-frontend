@@ -11,6 +11,12 @@ import Modal from "../../components/UI/Modal";
 
 import "./AdminEmployeeDetail.css";
 
+const emptyScheduleForm = {
+  day_of_week: "",
+  start_time: "",
+  end_time: "",
+};
+
 const AdminEmployeeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,6 +27,10 @@ const AdminEmployeeDetail = () => {
 
   const [modal, setModal] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const [scheduleModal, setScheduleModal] = useState(null);
+  const [scheduleForm, setScheduleForm] = useState(emptyScheduleForm);
+  const [isSavingSchedule, setIsSavingSchedule] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -76,7 +86,8 @@ const AdminEmployeeDetail = () => {
       setModal(null);
     } catch (error) {
       const message =
-        error.response?.data?.error || "Помилка при зміні статусу співробітника";
+        error.response?.data?.error ||
+        "Помилка при зміні статусу співробітника";
 
       console.error("Помилка при зміні статусу співробітника", error);
       toast.error(message);
@@ -84,6 +95,101 @@ const AdminEmployeeDetail = () => {
       setIsUpdating(false);
     }
   };
+
+  const openCreateScheduleModal = () => {
+    setScheduleForm(emptyScheduleForm);
+    setScheduleModal({ mode: "create" });
+  };
+
+  const openEditScheduleModal = (item) => {
+    setScheduleForm({
+      day_of_week: item.day_of_week || "",
+      start_time: item.start_time?.slice(0, 5) || "",
+      end_time: item.end_time?.slice(0, 5) || "",
+    });
+
+    setScheduleModal({
+      mode: "edit",
+      item,
+    });
+  };
+
+  const handleScheduleChange = (e) => {
+    setScheduleForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSaveSchedule = async () => {
+    if (
+      !scheduleForm.day_of_week ||
+      !scheduleForm.start_time ||
+      !scheduleForm.end_time
+    ) {
+      toast("Заповніть усі поля розкладу");
+      return;
+    }
+
+    try {
+      setIsSavingSchedule(true);
+
+      if (scheduleModal?.mode === "create") {
+        const response = await api.post(
+          `/admin/employee/${employee.id}/schedule/create/`,
+          scheduleForm,
+        );
+
+        setSchedule((prev) => [...prev, response.data.schedule]);
+        toast.success(response.data.message || "Розклад додано");
+      }
+
+      if (scheduleModal?.mode === "edit") {
+        const response = await api.patch(
+          `/admin/employee/${employee.id}/schedule/${scheduleModal.item.id}/update/`,
+          scheduleForm,
+        );
+
+        setSchedule((prev) =>
+          prev.map((item) =>
+            item.id === scheduleModal.item.id ? response.data.schedule : item,
+          ),
+        );
+
+        toast.success(response.data.message || "Розклад оновлено");
+      }
+
+      setScheduleModal(null);
+      setScheduleForm(emptyScheduleForm);
+    } catch (error) {
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.end_time ||
+        error.response?.data?.non_field_errors ||
+        "Помилка при збереженні розкладу";
+
+      toast.error(Array.isArray(message) ? message[0] : message);
+    } finally {
+      setIsSavingSchedule(false);
+    }
+  };
+
+  const handleDeleteSchedule = async (scheduleId) => {
+    try {
+      await api.delete(
+        `/admin/employee/${employee.id}/schedule/${scheduleId}/delete/`,
+      );
+
+      setSchedule((prev) => prev.filter((item) => item.id !== scheduleId));
+      toast.success("Розклад видалено");
+    } catch (error) {
+      const message =
+        error.response?.data?.error || "Помилка при видаленні розкладу";
+
+      toast.error(message);
+    }
+  };
+
   if (loading || !employee) {
     return <Loader text="Завантаження співробітника..." />;
   }
@@ -201,31 +307,25 @@ const AdminEmployeeDetail = () => {
               <strong>
                 {employee.date_of_dismissal
                   ? new Date(employee.date_of_dismissal).toLocaleDateString(
-                    "uk-UA",
-                  )
+                      "uk-UA",
+                    )
                   : "Не звільнений"}
               </strong>
             </div>
           </div>
         </Card>
-
-        <Card className="admin-employee-status-card">
-          <span>Статус акаунта</span>
-
-          <strong>{employee.is_active ? "Активний" : "Заблокований"}</strong>
-
-          <p>
-            {employee.is_active
-              ? "Співробітник має доступ до системи."
-              : "Доступ співробітника до системи заблоковано."}
-          </p>
-        </Card>
       </div>
 
       <section className="employee-schedule-section">
-        <div className="section-heading">
-          <h2>Розклад роботи</h2>
-          <p>Робочі дні та години співробітника.</p>
+        <div className="section-heading employee-schedule-heading">
+          <div>
+            <h2>Розклад роботи</h2>
+            <p>Робочі дні та години співробітника.</p>
+          </div>
+
+          <Button variant="info" onClick={openCreateScheduleModal}>
+            Додати день
+          </Button>
         </div>
 
         {schedule.length === 0 ? (
@@ -236,11 +336,29 @@ const AdminEmployeeDetail = () => {
           <div className="employee-schedule-grid">
             {schedule.map((item) => (
               <Card key={item.id} className="employee-schedule-card">
-                <span>{item.day_of_week}</span>
+                <div>
+                  <span>{item.day_of_week}</span>
 
-                <strong>
-                  {item.start_time.slice(0, 5)} — {item.end_time.slice(0, 5)}
-                </strong>
+                  <strong>
+                    {item.start_time.slice(0, 5)} — {item.end_time.slice(0, 5)}
+                  </strong>
+                </div>
+
+                <div className="employee-schedule-actions">
+                  <Button
+                    variant="outline"
+                    onClick={() => openEditScheduleModal(item)}
+                  >
+                    Редагувати
+                  </Button>
+
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDeleteSchedule(item.id)}
+                  >
+                    Видалити
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -254,7 +372,7 @@ const AdminEmployeeDetail = () => {
             navigate(`/administrator/employees/${employee.id}/update/`)
           }
         >
-          Редагувати
+          Редагувати співробітника
         </Button>
 
         {!employee.is_current_user && (
@@ -311,6 +429,77 @@ const AdminEmployeeDetail = () => {
                 : modal?.action === "deactivate"
                   ? "Звільнити"
                   : "Активувати"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={!!scheduleModal} onClose={() => setScheduleModal(null)}>
+        <div className="schedule-modal">
+          <h2>
+            {scheduleModal?.mode === "create"
+              ? "Додати день розкладу"
+              : "Редагувати розклад"}
+          </h2>
+
+          <div className="schedule-form">
+            <div className="form-group">
+              <label>День тижня</label>
+
+              <select
+                name="day_of_week"
+                value={scheduleForm.day_of_week}
+                onChange={handleScheduleChange}
+              >
+                <option value="">Оберіть день</option>
+                <option value="Понеділок">Понеділок</option>
+                <option value="Вівторок">Вівторок</option>
+                <option value="Середа">Середа</option>
+                <option value="Четвер">Четвер</option>
+                <option value="П'ятниця">П'ятниця</option>
+                <option value="Субота">Субота</option>
+                <option value="Неділя">Неділя</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Початок</label>
+
+              <input
+                type="time"
+                name="start_time"
+                value={scheduleForm.start_time}
+                onChange={handleScheduleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Кінець</label>
+
+              <input
+                type="time"
+                name="end_time"
+                value={scheduleForm.end_time}
+                onChange={handleScheduleChange}
+              />
+            </div>
+          </div>
+
+          <div className="modal-actions">
+            <Button
+              variant="outline"
+              onClick={() => setScheduleModal(null)}
+              disabled={isSavingSchedule}
+            >
+              Скасувати
+            </Button>
+
+            <Button
+              variant="info"
+              onClick={handleSaveSchedule}
+              disabled={isSavingSchedule}
+            >
+              {isSavingSchedule ? "Збереження..." : "Зберегти"}
             </Button>
           </div>
         </div>

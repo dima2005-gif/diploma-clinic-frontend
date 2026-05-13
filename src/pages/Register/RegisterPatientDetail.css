@@ -52,7 +52,7 @@
 
 .register-detail-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -122,23 +122,4 @@
   min-height: 100vh;
   width: 100%;
   padding: 32px 64px;
-}
-
-@media (max-width: 900px) {
-  .register-detail-page {
-    padding: 24px;
-  }
-}
-@media (max-width: 1000px) {
-  .register-detail-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .register-detail-hero {
-    flex-direction: column;
-  }
-
-  .register-detail-hero h1 {
-    font-size: 34px;
-  }
 }

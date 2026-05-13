@@ -69,7 +69,7 @@
 
 .patient-service-doctors-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
   gap: 24px;
 }
 
@@ -133,27 +133,4 @@
   min-height: 100vh;
   width: 100%;
   padding: 32px 64px;
-}
-
-@media (max-width: 900px) {
-  .patient-service-detail-page {
-    padding: 24px;
-  }
-}
-@media (max-width: 1100px) {
-  .patient-service-doctors-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 700px) {
-  .patient-service-detail-card h1 {
-    font-size: 34px;
-  }
-
-  .doctor-schedule-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
 }

@@ -164,18 +164,3 @@
 .doctor-action-card.aqua {
   border-left-color: var(--color-aqua);
 }
-@media (max-width: 1000px) {
-  .doctor-hero-stats,
-  .doctor-actions-grid,
-  .next-visit-card {
-    grid-template-columns: 1fr;
-  }
-
-  .doctor-hero {
-    padding: 32px 24px;
-  }
-
-  .doctor-hero h1 {
-    font-size: 34px;
-  }
-}
